@@ -35,3 +35,34 @@ The supplied scripts bind to 127.0.0.1. Studio enablement, loopback Host and sam
 Framework references: [Next.js installation](https://nextjs.org/docs/app/getting-started/installation), [Next.js CLI](https://nextjs.org/docs/app/api-reference/cli/next), and [Prisma SQLite](https://www.prisma.io/docs/orm/v6/overview/databases/sqlite). The installed Next.js documentation is also available under `node_modules/next/dist/docs/`.
 
 Language is client presentation state, independent of routing and stored record values. Official quotations are protected from translation. The map runtime is loaded only in the browser from the Esri CDN; npm SDK imports in its adapter are type-only. Public address search uses a licensed Region FeatureLayer rather than an unauthenticated paid locator.
+
+## Navigation
+
+The approved horizontal navigation is integrated into the existing `Shell` and
+`ProjectFrame`; the isolated navigation preview has been removed. The global
+navigation links to `/`, `/explore`, the existing municipality/category filters,
+and the guide and source limitations sections on `/about`. Language changes reuse
+the existing provider without changing the URL or project. Admin Portal remains
+an independent `/admin` entry, and Municipal Studio remains available through the
+footer and the Admin Portal.
+
+Project navigation appears only inside a selected project's frame. Real links
+connect the overview, Decision DNA, Impact Explorer, Public Voice and Action
+Navigator. Documents link to the existing source library, which also links to
+recorded version comparisons. Sources retain their original titles and evidence
+links. Breadcrumbs lead back to the project and the live project list. Browser
+history, refresh and direct project URLs use the existing App Router routes.
+
+Dropdowns support click, Tab, arrow keys, Escape, outside click and focus dismissal.
+The global navigation folds below 1200px and project navigation below 700px. At
+390px, each menu expands vertically rather than crowding the project tabs. Shared
+styles live in `globals.css`; translated navigation labels live in the existing
+French and Simplified Chinese dictionaries. No static demo records, new database
+schema, authentication, publishing behavior or deployment settings are added.
+
+Public discovery lists and municipality filters exclude synthetic records. The
+fictional-case switch has been removed; stored fixtures remain available to
+internal regression tests without deleting development records. Repeated sitewide
+notices and promotional captions are removed from the browsing interface. The
+About page retains platform limitations, source handling and privacy information;
+project evidence, unknown states, map attribution and error messages remain.

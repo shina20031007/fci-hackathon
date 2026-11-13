@@ -3,7 +3,7 @@ import { Localized } from "@/lib/i18n/provider";
 
 import { useState } from "react";
 import Link from "next/link";
-import { MessagesSquare, CornerDownRight, ArrowRight } from "lucide-react";
+import { CornerDownRight, ArrowRight } from "lucide-react";
 import { type CivicProject, responseTypes } from "@/lib/validation/project";
 import { filterFeedback } from "@/lib/evidence/policy";
 import { LocalizedDate } from "@/lib/i18n/provider";
@@ -24,29 +24,7 @@ export function PublicVoice({
     <Localized>
       {
         <>
-          <SectionTitle
-            eyebrow="03 / PUBLIC VOICE TRACE"
-            title="What people raised. What the record says."
-            description="Follow documented concerns, responses, and amendments without assuming a causal link."
-          />
-          <div className="voice-intro panel">
-            <MessagesSquare size={28} />
-            <div>
-              <h3>Public input, with its evidence attached.</h3>
-              <p>
-                {project.feedback.length} recorded themes in this{" "}
-                {project.synthetic ? "fictional" : "published"} case.
-                Participation counts are unavailable; themes do not represent
-                numbers of people.
-              </p>
-            </div>
-            <Link
-              className="text-link"
-              href={`/projects/${project.id}/decisions`}
-            >
-              See the timeline <ArrowRight size={16} />
-            </Link>
-          </div>
+          <SectionTitle title="Public Voice" />
           <div className="filters">
             <label>
               Topic

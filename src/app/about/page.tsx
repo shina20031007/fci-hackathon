@@ -15,7 +15,11 @@ export default function About() {
               geography, public feedback, and participation.
             </p>
           </div>
-          <div className="methodology-intro panel">
+          <div
+            className="methodology-intro panel"
+            id="how-it-works"
+            tabIndex={-1}
+          >
             <BookOpen size={32} />
             <div>
               <h2>From policy to people.</h2>
@@ -28,7 +32,11 @@ export default function About() {
               </p>
             </div>
           </div>
-          <div className="methodology-grid">
+          <div
+            className="methodology-grid"
+            id="sources-and-limitations"
+            tabIndex={-1}
+          >
             <section className="panel">
               <ShieldCheck size={25} />
               <h2>What the evidence means</h2>

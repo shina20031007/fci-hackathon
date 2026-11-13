@@ -2,7 +2,7 @@
 import { Localized } from "@/lib/i18n/provider";
 
 import { useState } from "react";
-import { Search, SlidersHorizontal, ArrowRight, X, MapPin } from "lucide-react";
+import { Search, ArrowRight, X, MapPin } from "lucide-react";
 import Link from "next/link";
 import {
   type CivicProject,
@@ -28,18 +28,15 @@ export function Discovery({
     [participation, setParticipation] = useState(""),
     [recent, setRecent] = useState(false),
     [selected, setSelected] = useState("");
-  const [showExamples, setShowExamples] = useState(false);
-  const visible = filterProjects(
-    projects.filter((p) => (showExamples ? p.synthetic : !p.synthetic)),
-    {
-      query,
-      municipality,
-      category,
-      status,
-      participation,
-      recent,
-    },
-  );
+  const publicProjects = projects.filter((p) => !p.synthetic);
+  const visible = filterProjects(publicProjects, {
+    query,
+    municipality,
+    category,
+    status,
+    participation,
+    recent,
+  });
   const chosen = visible.find((p) => p.id === selected);
   const hasFilters = !!(
     query ||
@@ -69,21 +66,8 @@ export function Discovery({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <span className="search-hint">MY AREA</span>
           </div>
-          <label className="checkbox-label example-toggle">
-            <input
-              type="checkbox"
-              checked={showExamples}
-              onChange={(e) => {
-                setShowExamples(e.target.checked);
-                setSelected("");
-              }}
-            />
-            Show fictional test cases instead of real projects
-          </label>
-          <div className="filters">
-            <SlidersHorizontal size={17} />
+          <div className="filters discovery-filters">
             <label className="sr-only" htmlFor="municipality">
               Municipality
             </label>
@@ -93,9 +77,11 @@ export function Discovery({
               onChange={(e) => setMunicipality(e.target.value)}
             >
               <option value="">All municipalities</option>
-              {[...new Set(projects.map((p) => p.municipality))].map((m) => (
-                <option key={m}>{m}</option>
-              ))}
+              {[...new Set(publicProjects.map((p) => p.municipality))].map(
+                (m) => (
+                  <option key={m}>{m}</option>
+                ),
+              )}
             </select>
             <label className="sr-only" htmlFor="category">
               Category
@@ -180,7 +166,6 @@ export function Discovery({
                   {visible.length}{" "}
                   {visible.length === 1 ? "decision trail" : "decision trails"}
                 </strong>
-                <span className="small muted">Published records</span>
               </div>
               {visible.length ? (
                 visible.map((p) => (
@@ -211,9 +196,6 @@ export function Discovery({
                 <div className="panel-heading">
                   <div>
                     <h3>Your community, in context</h3>
-                    <p className="small muted">
-                      Select an area to locate its decision trail.
-                    </p>
                   </div>
                   <MapPin size={19} />
                 </div>
@@ -231,17 +213,6 @@ export function Discovery({
                   </div>
                 )}
               </div>
-              <div className="notice">
-                <MapPin size={19} />
-                <p>
-                  Search an address in the map search box, or filter projects by
-                  municipality and topic.
-                </p>
-              </div>
-              <p className="small muted">
-                Real and fictional records are shown separately. Project cards
-                and geographic records provide a text alternative to the map.
-              </p>
             </div>
           </div>
         </>

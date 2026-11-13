@@ -25,9 +25,6 @@ export function HomeView({ projects }: { projects: CivicProject[] }) {
         <div className="page overview-page">
           <div className="overview-intro">
             <div>
-              <p className="eyebrow">
-                <span className="teal-dot" /> YOUR COMMUNITY. A CLEARER PICTURE.
-              </p>
               <h1>
                 Understand the decisions
                 <br />
@@ -67,16 +64,13 @@ export function HomeView({ projects }: { projects: CivicProject[] }) {
               aria-label="A decision connects a source document, an amendment, public input, and the next step"
             >
               <div className="trace-grid" />
-              <div className="trace-kicker">
-                <span className="status-dot" /> CONNECTED BY EVIDENCE
-              </div>
               <div className="trace-node node-source">
                 <span className="node-icon">
                   <FileText size={19} />
                 </span>
                 <div>
                   <small>01 · THE SOURCE</small>
-                  <strong>It starts with a record.</strong>
+                  <strong>Source documents</strong>
                   <span>Reports, minutes & proposals</span>
                 </div>
               </div>
@@ -87,7 +81,7 @@ export function HomeView({ projects }: { projects: CivicProject[] }) {
                 </span>
                 <div>
                   <small>02 · THE DECISION</small>
-                  <strong>See the full story.</strong>
+                  <strong>Decisions</strong>
                   <span>Changes, conditions & context</span>
                 </div>
                 <span className="node-check">
@@ -101,25 +95,11 @@ export function HomeView({ projects }: { projects: CivicProject[] }) {
                 </span>
                 <div>
                   <small>03 · YOUR COMMUNITY</small>
-                  <strong>Know where you fit.</strong>
+                  <strong>Participation</strong>
                   <span>Public voice & your next step</span>
                 </div>
               </div>
-              <span className="trace-caption">
-                A clearer path from policy to people.
-              </span>
             </div>
-          </div>
-          <div className="demo-banner">
-            <span className="demo-dot" />
-            <strong>Independent information. Official sources.</strong>
-            <span>
-              Source-backed municipal cases. Unknown decisions, dates and
-              boundaries are explicitly marked.
-            </span>
-            <Link href="/about">
-              Read our approach <ArrowUpRight size={13} />
-            </Link>
           </div>
           <div className="stats-row">
             <div>
@@ -149,21 +129,9 @@ export function HomeView({ projects }: { projects: CivicProject[] }) {
                 <span>Linked official sources</span>
               </div>
             </div>
-            <div className="stat-explainer">
-              <ShieldCheck size={24} />
-              <p>
-                Clarity you can inspect.
-                <br />
-                <strong>Every claim leads back to a source.</strong>
-              </p>
-            </div>
           </div>
           <section>
-            <SectionTitle
-              eyebrow="START EXPLORING"
-              title="Decisions, with the context included."
-              description="Three official projects, with evidence and verification limits."
-            >
+            <SectionTitle title="Projects">
               <Link className="text-link" href="/explore">
                 View all decisions <ArrowRight size={16} />
               </Link>
@@ -175,10 +143,7 @@ export function HomeView({ projects }: { projects: CivicProject[] }) {
             </div>
           </section>
           <section className="workflow-section">
-            <SectionTitle
-              eyebrow="FOLLOW THE THREAD"
-              title="More than a summary. A decision trail."
-            />
+            <SectionTitle title="Explore CivicTrace" />
             <div className="workflow-grid">
               {[
                 {

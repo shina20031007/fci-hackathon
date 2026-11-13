@@ -1,173 +1,221 @@
 "use client";
-import { Localized } from "@/lib/i18n/provider";
-
-import { LanguageSelector, TranslationNotice } from "@/lib/i18n/provider";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { LanguageSelector, useLanguage } from "@/lib/i18n/provider";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
-import {
-  LayoutDashboard,
-  Compass,
-  GitBranch,
-  MessagesSquare,
-  Map,
-  Navigation,
-  PanelLeftClose,
-  Info,
-  ShieldCheck,
-  Menu,
-  X,
-  ArrowUpRight,
-  CircleDot,
-} from "lucide-react";
-export function Shell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const id = pathname.match(/^\/projects\/([^/]+)/)?.[1];
-  const projectLink = (module: string) =>
-    id ? `/projects/${id}/${module}` : `/explore?next=${module}`;
-  const items = [
-    { label: "Overview", href: "/", icon: LayoutDashboard },
-    { label: "Explore Decisions", href: "/explore", icon: Compass },
-    { label: "Decision DNA", href: projectLink("decisions"), icon: GitBranch },
-    {
-      label: "Public Voice",
-      href: projectLink("public-voice"),
-      icon: MessagesSquare,
-    },
-    { label: "Impact Explorer", href: projectLink("impact"), icon: Map },
-    {
-      label: "Action Navigator",
-      href: projectLink("participation"),
-      icon: Navigation,
-    },
-  ];
-  const current =
-    pathname === "/admin"
-      ? "Admin Portal"
-      : pathname.startsWith("/studio")
-        ? "Municipal Studio"
-        : pathname.startsWith("/about")
-          ? "About & Methodology"
-          : (items.find((i) => i.href === pathname)?.label ??
-            "Project workspace");
+import { GitBranch, Menu, X, ArrowUpRight, ChevronDown } from "lucide-react";
+export function NavigationDropdown({
+  id,
+  label,
+  open,
+  setOpen,
+  active,
+  children,
+}: {
+  id: string;
+  label: string;
+  open: string;
+  setOpen: (id: string) => void;
+  active?: boolean;
+  children: ReactNode;
+}) {
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const expanded = open === id;
+  useEffect(() => {
+    if (!expanded) return;
+    const close = (event: PointerEvent) => {
+      if (!root.current?.contains(event.target as Node)) setOpen("");
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [expanded, setOpen]);
   return (
-    <Localized>
-      {
-        <div className="app-shell">
-          <a className="skip-link" href="#main-content">
-            Skip to content
-          </a>
-          <button
-            className="mobile-menu"
-            aria-label={open ? "Close navigation" : "Open navigation"}
-            aria-expanded={open}
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <X /> : <Menu />}
-          </button>
-          {open && (
-            <button
-              className="nav-overlay"
-              aria-label="Close navigation overlay"
-              onClick={() => setOpen(false)}
-            />
+    <div
+      ref={root}
+      className="civic-dropdown"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen("");
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && expanded) {
+          event.stopPropagation();
+          setOpen("");
+          trigger.current?.focus();
+        }
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          const focusItem = () => {
+            const items = Array.from(
+              root.current?.querySelectorAll<HTMLElement>(
+                "[data-dropdown] a, [data-dropdown] button",
+              ) ?? [],
+            );
+            const index = items.indexOf(document.activeElement as HTMLElement);
+            const next =
+              index < 0
+                ? event.key === "ArrowDown"
+                  ? 0
+                  : items.length - 1
+                : (index + (event.key === "ArrowDown" ? 1 : items.length - 1)) %
+                  items.length;
+            items[next]?.focus();
+          };
+          if (!expanded) {
+            setOpen(id);
+            requestAnimationFrame(focusItem);
+          } else focusItem();
+        }
+      }}
+    >
+      <button
+        ref={trigger}
+        type="button"
+        className={active ? "is-active" : ""}
+        aria-expanded={expanded}
+        aria-controls={`${id}-options`}
+        onClick={() => setOpen(expanded ? "" : id)}
+      >
+        {label}
+        <ChevronDown size={15} aria-hidden="true" />
+      </button>
+      <div
+        id={`${id}-options`}
+        data-dropdown
+        className="civic-flyout"
+        hidden={!expanded}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function NavigationHeader() {
+  const pathname = usePathname();
+  const { t } = useLanguage();
+  const [open, setOpen] = useState("");
+  const [mobile, setMobile] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  return (
+    <header
+      className="civic-header"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && mobile) {
+          setOpen("");
+          setMobile(false);
+          trigger.current?.focus();
+        }
+      }}
+    >
+      <div className="civic-topline">
+        <Link
+          className="civic-brand"
+          href="/"
+          aria-label={`CivicTrace · ${t("Home")}`}
+        >
+          <span>
+            <GitBranch size={25} aria-hidden="true" />
+          </span>
+          CivicTrace
+        </Link>
+        <button
+          ref={trigger}
+          className="civic-mobile-toggle"
+          aria-expanded={mobile}
+          aria-controls="global-navigation"
+          onClick={() => {
+            setMobile(!mobile);
+            setOpen("");
+          }}
+        >
+          {mobile ? (
+            <X size={20} aria-hidden="true" />
+          ) : (
+            <Menu size={20} aria-hidden="true" />
           )}
-          <aside className={`sidebar ${open ? "is-open" : ""}`}>
-            <Link className="brand" href="/" onClick={() => setOpen(false)}>
-              <span className="brand-mark">
-                <GitBranch size={24} />
-              </span>
-              <span>
-                CivicTrace<small>FROM POLICY TO PEOPLE</small>
-              </span>
+          {t(mobile ? "Close menu" : "Menu")}
+        </button>
+        <nav
+          id="global-navigation"
+          className="civic-global-nav"
+          data-open={mobile}
+          aria-label={t("Main navigation")}
+          onClick={(event) => {
+            if ((event.target as Element).closest("a")) {
+              setOpen("");
+              setMobile(false);
+            }
+          }}
+        >
+          <Link href="/" aria-current={pathname === "/" ? "page" : undefined}>
+            {t("Home")}
+          </Link>
+          <NavigationDropdown
+            id="explore-navigation"
+            label={t("Explore decisions")}
+            open={open}
+            setOpen={setOpen}
+            active={
+              pathname === "/explore" || pathname.startsWith("/projects/")
+            }
+          >
+            <Link href="/explore">{t("All projects")}</Link>
+            <Link href="/explore#municipality">
+              {t("Find by municipality")}
             </Link>
-            <p className="nav-label">RESIDENT WORKSPACE</p>
-            <nav aria-label="Main navigation">
-              {items.map(({ label, href, icon: Icon }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  onClick={() => setOpen(false)}
-                  className={`nav-link ${href === pathname ? "active" : ""}`}
-                  aria-current={href === pathname ? "page" : undefined}
-                >
-                  <Icon size={18} />
-                  <span>{label}</span>
-                  {href === pathname && <span className="active-dot" />}
-                </Link>
-              ))}
-            </nav>
-            <div className="nav-divider" />
-            <p className="nav-label">REVIEW & RESOURCES</p>
-            <nav aria-label="Resources">
-              <Link
-                className={`nav-link ${pathname === "/admin" ? "active" : ""}`}
-                aria-current={pathname === "/admin" ? "page" : undefined}
-                href="/admin"
-                onClick={() => setOpen(false)}
-              >
-                <LayoutDashboard size={18} />
-                Admin Portal
-              </Link>
-              <Link
-                className={`nav-link ${pathname.startsWith("/studio") ? "active" : ""}`}
-                href="/studio"
-                onClick={() => setOpen(false)}
-              >
-                <ShieldCheck size={18} />
-                Municipal Studio
-              </Link>
-              <Link
-                className={`nav-link ${pathname === "/about" ? "active" : ""}`}
-                href="/about"
-                onClick={() => setOpen(false)}
-              >
-                <Info size={18} />
-                About & Methodology
-              </Link>
-            </nav>
-            <div className="sidebar-bottom">
-              <div className="prototype-card">
-                <CircleDot size={17} />
-                <strong>Built for civic clarity.</strong>
-                <p>
-                  Every explanation has a trail.
-                  <br />
-                  Every source has a place.
-                </p>
-                <Link href="/about">
-                  Our evidence approach <ArrowUpRight size={14} />
-                </Link>
-              </div>
-              <div className="sidebar-foot">
-                <span>FCI CIVIC HACK</span>
-                <PanelLeftClose size={16} />
-              </div>
-            </div>
-          </aside>
-          <div className="main-shell">
-            <header className="topbar">
-              <div className="breadcrumb">
-                Workspace <span>/</span> <strong>{current}</strong>
-              </div>
-              <div className="topbar-right">
-                <LanguageSelector />
-              </div>
-            </header>
-            <TranslationNotice />
-            <main id="main-content" tabIndex={-1}>
-              {children}
-            </main>
-            <footer className="app-footer">
-              <span>CivicTrace · From Policy to People</span>
-              <Link href="/about">
-                Evidence, limitations & methodology <ArrowUpRight size={12} />
-              </Link>
-            </footer>
+            <Link href="/explore#category">{t("Find by category")}</Link>
+          </NavigationDropdown>
+          <NavigationDropdown
+            id="about-navigation"
+            label={t("About CivicTrace")}
+            open={open}
+            setOpen={setOpen}
+            active={pathname === "/about"}
+          >
+            <Link href="/about#how-it-works">{t("How it works")}</Link>
+            <Link href="/about#sources-and-limitations">
+              {t("Sources & limitations")}
+            </Link>
+          </NavigationDropdown>
+          <div className="civic-language">
+            <LanguageSelector />
           </div>
-        </div>
-      }
-    </Localized>
+          <Link
+            className="civic-admin"
+            href="/admin"
+            aria-current={pathname === "/admin" ? "page" : undefined}
+          >
+            {t("Admin Portal")}
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+        </nav>
+      </div>
+    </header>
+  );
+}
+export function Shell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const { t } = useLanguage();
+  return (
+    <div className="civic-shell">
+      <a className="skip-link" href="#main-content">
+        {t("Skip to content")}
+      </a>
+      <NavigationHeader key={pathname} />
+      <main id="main-content" tabIndex={-1}>
+        {children}
+      </main>
+      <footer className="app-footer">
+        <span>{t("CivicTrace · From Policy to People")}</span>
+        <Link href="/about#sources-and-limitations">
+          {t("Sources & limitations")}
+        </Link>
+        <Link href="/studio">
+          {t("Municipal Studio")}
+          <ArrowUpRight size={14} aria-hidden="true" />
+        </Link>
+      </footer>
+    </div>
   );
 }

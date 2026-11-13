@@ -14,7 +14,7 @@ type Props = {
   onSelect?: (id: string) => void;
   detailed?: boolean;
 };
-const hasKey = Boolean(process.env.NEXT_PUBLIC_ARCGIS_API_KEY);
+const hasKey = Boolean(process.env.NEXT_PUBLIC_ARCGIS_API_KEY?.trim());
 export function ProjectMap({
   projects,
   selectedId,
@@ -28,6 +28,11 @@ export function ProjectMap({
   const translator = useRef(t);
   const [ready, setReady] = useState(false),
     [error, setError] = useState("");
+  const [serviceErrors, setServiceErrors] = useState({
+    basemap: "",
+    search: "",
+  });
+  const [fallbackRoads, setFallbackRoads] = useState(false);
   const [hidden, setHidden] = useState<string[]>([]),
     [base, setBase] = useState("roads"),
     [roads, setRoads] = useState(false);
@@ -61,6 +66,21 @@ export function ProjectMap({
             setError(
               "A map service is unavailable. Use the source-linked text records below.",
             ),
+          onServiceError: (service, message) => {
+            if (!disposed) {
+              setServiceErrors((previous) => ({
+                ...previous,
+                [service]: message,
+              }));
+              if (service === "basemap" && !message) setFallbackRoads(false);
+            }
+          },
+          onBasemapFallback: () => {
+            if (!disposed) {
+              setFallbackRoads(true);
+              setBase("roads");
+            }
+          },
           translate: (text) => translator.current(text),
         });
         if (disposed) {
@@ -126,7 +146,11 @@ export function ProjectMap({
               value={base}
               onChange={(e) => setBase(e.target.value)}
             >
-              <option value="roads">Roads (OpenStreetMap)</option>
+              <option value="roads">
+                {hasKey && !fallbackRoads
+                  ? "Roads (Esri)"
+                  : "Roads (OpenStreetMap)"}
+              </option>
               <option value="imagery" disabled={!hasKey}>
                 Satellite imagery
               </option>
@@ -159,6 +183,13 @@ export function ProjectMap({
             {error}
           </p>
         )}
+        {Object.entries(serviceErrors)
+          .filter(([, message]) => message)
+          .map(([service, message]) => (
+            <p role="status" className="map-notice" key={service}>
+              {message}
+            </p>
+          ))}
         <div className="map-controls">
           <Layers size={16} />
           <strong>Layers</strong>
@@ -187,18 +218,6 @@ export function ProjectMap({
             Official road network (context)
           </label>
         </div>
-        <p className="map-caption">
-          Address search uses licensed Waterloo Region address points. Search
-          terms are sent to the regional ArcGIS service; selected locations are
-          not saved.
-        </p>
-        {!hasKey && (
-          <p className="map-caption">
-            Satellite imagery, light gray and Canada-wide address search require
-            a configured Esri API key. Regional address search and road maps
-            work without one.
-          </p>
-        )}
         <details className="coordinate-entry">
           <summary>Choose coordinates without using the map</summary>
           <form

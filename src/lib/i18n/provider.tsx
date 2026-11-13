@@ -147,24 +147,6 @@ export function LanguageSelector() {
     </label>
   );
 }
-export function TranslationNotice() {
-  const { locale, t } = useLanguage();
-  return (
-    <p className="translation-notice">
-      {t(
-        "Independent civic information prototype. Not an official government website.",
-      )}
-      {locale !== "en" && (
-        <>
-          {" "}
-          {t(
-            "Unofficial translation. Original official documents and quotations remain authoritative; consult them before acting.",
-          )}
-        </>
-      )}
-    </p>
-  );
-}
 export function LocalizedDate({
   value,
   timeZone = "America/Toronto",

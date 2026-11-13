@@ -31,11 +31,7 @@ export function DecisionDNA({ project }: { project: CivicProject }) {
     <Localized>
       {
         <>
-          <SectionTitle
-            eyebrow="02 / DECISION DNA"
-            title="Follow what changed. Understand what stands."
-            description="A recommendation, an approval, and an effective rule are different things."
-          />
+          <SectionTitle title="Decision DNA" />
           <div className="decision-summary">
             <GitBranch size={23} />
             <div>
@@ -147,7 +143,11 @@ export function DecisionDNA({ project }: { project: CivicProject }) {
               ))}
             </section>
           </div>
-          <section className="panel version-panel">
+          <section
+            className="panel version-panel"
+            id="recorded-versions"
+            tabIndex={-1}
+          >
             <SectionTitle
               eyebrow="WHAT CHANGED"
               title="Compare the recorded versions"

@@ -28,11 +28,7 @@ export function ModuleView({
             <Participation project={project} />
           ) : (
             <>
-              <SectionTitle
-                eyebrow="04 / IMPACT EXPLORER"
-                title="A place in the decision. Not an assumed impact."
-                description="Explore recorded boundaries, select a location, and inspect the underlying evidence."
-              />
+              <SectionTitle title="Map & impact" />
               <div className="impact-layout">
                 <section className="panel">
                   <ProjectMap projects={[project]} detailed />
@@ -74,11 +70,6 @@ export function ModuleView({
                         </dd>
                       </div>
                     </dl>
-                  </div>
-                  <div className="notice">
-                    Address queries go to the selected search provider. Selected
-                    locations are not saved. Map information is also available
-                    as text.
                   </div>
                 </aside>
               </div>

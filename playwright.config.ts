@@ -1,5 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 import { resolve } from "node:path";
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: false,
@@ -8,7 +9,7 @@ export default defineConfig({
   expect: { timeout: 10000 },
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:3100",
+    baseURL: `http://127.0.0.1:${port}`,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
@@ -28,8 +29,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev -- --port 3100",
-    url: "http://127.0.0.1:3100",
+    command: `npm run dev -- --port ${port}`,
+    url: `http://127.0.0.1:${port}`,
     reuseExistingServer: false,
     timeout: 120000,
     env: {

@@ -1,27 +1,27 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-test("resident follows one project from discovery to evidence and a private draft", async ({
+test("real discovery and fixture evidence, map and private draft workflows", async ({
   page,
 }) => {
   await page.goto("/");
   await expect(
     page.getByRole("heading", { name: /Understand the decisions/ }),
   ).toBeVisible();
-  await page.getByLabel("Search your community").fill("Willow");
+  await page.getByLabel("Search your community").fill("Maryhill");
   await page.getByRole("button", { name: "Search projects" }).click();
-  await page
-    .getByLabel("Show fictional test cases instead of real projects")
-    .check();
   await expect(
     page.getByText("1 decision trail", { exact: true }),
   ).toBeVisible();
-  await page
-    .getByRole("link", { name: "Willow Street complete street" })
-    .click();
-  await expect(page).toHaveURL(/\/projects\/willow-street$/);
+  await page.getByRole("link", { name: "Maryhill Road", exact: true }).click();
+  await expect(page).toHaveURL(/\/projects\/maryhill-road$/);
+  // Stored fixtures still exercise rich evidence interactions without appearing in discovery.
+  await page.goto("/projects/willow-street");
   await expect(
     page.getByText("Demonstration data — fictional example."),
   ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Decisions & evidence", exact: true })
+    .click();
   await page
     .getByRole("navigation", { name: "Project modules" })
     .getByRole("link", { name: "Decision DNA" })
@@ -45,7 +45,7 @@ test("resident follows one project from discovery to evidence and a private draf
   await expect(dialog).not.toBeVisible();
   await page
     .getByRole("navigation", { name: "Project modules" })
-    .getByRole("link", { name: "Impact Explorer" })
+    .getByRole("link", { name: "Map & impact" })
     .click();
   await expect(
     page.getByText("Before / after comparison", { exact: true }),
@@ -59,7 +59,7 @@ test("resident follows one project from discovery to evidence and a private draf
   await expect(page.getByText(/Selected coordinates:/)).toBeVisible();
   await page
     .getByRole("navigation", { name: "Project modules" })
-    .getByRole("link", { name: "Public Voice" })
+    .getByRole("link", { name: "Public voice" })
     .click();
   await page.getByLabel("Topic", { exact: true }).selectOption("Accessibility");
   await expect(page.locator(".feedback-card")).toHaveCount(1);
@@ -68,7 +68,7 @@ test("resident follows one project from discovery to evidence and a private draf
   );
   await page
     .getByRole("navigation", { name: "Project modules" })
-    .getByRole("link", { name: "Action Navigator" })
+    .getByRole("link", { name: "How to participate" })
     .click();
   await expect(page).toHaveURL(/willow-street\/participation/);
   await expect(
@@ -197,15 +197,16 @@ test("keyboard, evidence focus and mobile navigation remain accessible", async (
   await expect(
     page.getByRole("link", { name: "Skip to content" }),
   ).toBeFocused();
+  await page.getByRole("button", { name: "Menu", exact: true }).click();
   await page
-    .getByRole("button", { name: "Open navigation", exact: true })
+    .getByRole("button", { name: "Explore decisions", exact: true })
     .click();
   await page
     .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("link", { name: "Explore Decisions" })
+    .getByRole("link", { name: "All projects", exact: true })
     .click();
   await expect(
-    page.getByRole("button", { name: "Open navigation", exact: true }),
+    page.getByRole("button", { name: "Menu", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".project-card")).toHaveCount(3);
   expect(
@@ -274,7 +275,7 @@ test("map selection, layer controls and a printable brief work", async ({
   await expect(
     page.getByRole("heading", { name: "Supporting sources", exact: true }),
   ).toBeVisible();
-  await expect(page.locator(".sidebar")).not.toBeVisible();
+  await expect(page.locator(".civic-header")).not.toBeVisible();
 });
 
 test("tablet and mobile modules fit without horizontal overflow", async ({

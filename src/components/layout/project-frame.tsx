@@ -1,14 +1,9 @@
 "use client";
-import { Localized } from "@/lib/i18n/provider";
+import { useRef, useState } from "react";
+import { NavigationDropdown } from "./shell";
+import { Localized, useLanguage } from "@/lib/i18n/provider";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  GitBranch,
-  MessagesSquare,
-  Map,
-  Navigation,
-  LayoutDashboard,
-} from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import type { CivicProject } from "@/lib/validation/project";
 import { Badge } from "@/components/ui/shared";
 import { EvidenceProvider } from "@/components/evidence/evidence-provider";
@@ -24,25 +19,50 @@ export function ProjectFrame({
   children: React.ReactNode;
   preview?: boolean;
 }) {
-  const tabs = [
-    { key: "overview", label: "Project overview", icon: LayoutDashboard },
-    { key: "decisions", label: "Decision DNA", icon: GitBranch },
-    { key: "public-voice", label: "Public Voice", icon: MessagesSquare },
-    { key: "impact", label: "Impact Explorer", icon: Map },
-    { key: "participation", label: "Action Navigator", icon: Navigation },
-  ];
   return (
     <Localized>
       {
         <EvidenceProvider project={project}>
           <div className="page project-page">
-            <Link
-              className="back-link"
-              href={preview ? `/studio/${project.id}` : "/explore"}
-            >
-              <ArrowLeft size={15} />
-              {preview ? "Back to draft editor" : "All decisions"}
-            </Link>
+            {preview ? (
+              <Link className="back-link" href={`/studio/${project.id}`}>
+                <ArrowLeft size={15} />
+                Back to draft editor
+              </Link>
+            ) : (
+              <nav className="civic-breadcrumb" aria-label="Breadcrumb">
+                <Link href="/">Home</Link>
+                <span aria-hidden="true">/</span>
+                <Link href="/explore">All projects</Link>
+                <span aria-hidden="true">/</span>
+                {active === "overview" ? (
+                  <span aria-current="page" translate="no">
+                    {project.title}
+                  </span>
+                ) : (
+                  <Link href={`/projects/${project.id}`} translate="no">
+                    {project.title}
+                  </Link>
+                )}
+                {active !== "overview" && (
+                  <>
+                    <span aria-hidden="true">/</span>
+                    <span aria-current="page">
+                      {
+                        (
+                          {
+                            decisions: "Decision DNA",
+                            impact: "Map & impact",
+                            "public-voice": "Public voice",
+                            participation: "How to participate",
+                          } as Record<string, string>
+                        )[active]
+                      }
+                    </span>
+                  </>
+                )}
+              </nav>
+            )}
             <div className="project-heading">
               <p className="eyebrow">
                 {project.municipality} <span> / </span> {project.category}
@@ -71,24 +91,108 @@ export function ProjectFrame({
                 change the resident portal.
               </div>
             ) : (
-              <nav className="project-tabs" aria-label="Project modules">
-                {tabs.map(({ key, label, icon: Icon }) => (
-                  <Link
-                    key={key}
-                    aria-current={active === key ? "page" : undefined}
-                    className={active === key ? "active" : ""}
-                    href={`/projects/${project.id}${key === "overview" ? "" : `/${key}`}`}
-                  >
-                    <Icon size={16} />
-                    {label}
-                  </Link>
-                ))}
-              </nav>
+              <ProjectNavigation
+                key={active}
+                projectId={project.id}
+                active={active}
+              />
             )}
             {children}
           </div>
         </EvidenceProvider>
       }
     </Localized>
+  );
+}
+
+function ProjectNavigation({
+  projectId,
+  active,
+}: {
+  projectId: string;
+  active: string;
+}) {
+  const { t } = useLanguage();
+  const [open, setOpen] = useState("");
+  const [mobile, setMobile] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const base = `/projects/${projectId}`;
+  const labels: Record<string, string> = {
+    overview: "Project overview",
+    decisions: "Decision DNA",
+    impact: "Map & impact",
+    "public-voice": "Public voice",
+    participation: "How to participate",
+  };
+  return (
+    <div
+      className="civic-project-wrap"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && mobile) {
+          setMobile(false);
+          setOpen("");
+          trigger.current?.focus();
+        }
+      }}
+    >
+      <button
+        ref={trigger}
+        className="civic-project-toggle"
+        aria-controls="project-navigation"
+        aria-expanded={mobile}
+        onClick={() => {
+          setMobile(!mobile);
+          setOpen("");
+        }}
+      >
+        {t("Project navigation")}: {t(labels[active])}
+        <ChevronDown size={18} aria-hidden="true" />
+      </button>
+      <nav
+        id="project-navigation"
+        className="civic-project-nav"
+        data-open={mobile}
+        aria-label={t("Project modules")}
+        onClick={(event) => {
+          if ((event.target as Element).closest("a")) {
+            setMobile(false);
+            setOpen("");
+          }
+        }}
+      >
+        <Link
+          href={base}
+          aria-current={active === "overview" ? "page" : undefined}
+        >
+          {t("Project overview")}
+        </Link>
+        <NavigationDropdown
+          id="evidence-navigation"
+          label={t("Decisions & evidence")}
+          open={open}
+          setOpen={setOpen}
+          active={active === "decisions"}
+        >
+          <Link
+            href={`${base}/decisions`}
+            aria-current={active === "decisions" ? "page" : undefined}
+          >
+            {t("Decision DNA")}
+          </Link>
+          <Link href={`${base}#project-sources`}>
+            {t("Documents, amendments & sources")}
+          </Link>
+        </NavigationDropdown>
+        {(["impact", "public-voice", "participation"] as const).map((key) => (
+          <Link
+            key={key}
+            href={`${base}/${key}`}
+            aria-current={active === key ? "page" : undefined}
+          >
+            {t(labels[key])}
+          </Link>
+        ))}
+      </nav>
+    </div>
   );
 }

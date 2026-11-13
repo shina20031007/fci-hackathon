@@ -77,7 +77,7 @@ export function ProjectOverview({ project }: { project: CivicProject }) {
           <div className="notice">
             <Info size={20} />
             <div>
-              <strong>Keep the conditions in view.</strong>
+              <strong>Conditions</strong>
               {project.decisions.map((d) => (
                 <p key={d.id}>
                   {d.conditions || "No conditions recorded."} {d.uncertainty}
@@ -85,7 +85,7 @@ export function ProjectOverview({ project }: { project: CivicProject }) {
               ))}
             </div>
           </div>
-          <SectionTitle title="Follow this project through the evidence." />
+          <SectionTitle title="Project sections" />
           <div className="module-grid">
             {[
               {
@@ -127,35 +127,51 @@ export function ProjectOverview({ project }: { project: CivicProject }) {
               </Link>
             ))}
           </div>
-          {!project.synthetic && (
-            <section className="panel source-library">
-              <SectionTitle
-                title="Official document library"
-                description="Original documents remain in their published language. Unknown dates and unverified contents are explicitly marked."
-              />
-              <ul className="prose-list">
-                {project.sources.map((source) => (
-                  <li key={source.id}>
-                    <a
-                      href={source.url ?? undefined}
-                      target="_blank"
-                      rel="noreferrer"
-                      translate="no"
-                      lang="en"
-                    >
-                      {source.title}
-                    </a>{" "}
-                    · <LocalizedDate value={source.date} />
-                    {project.evidence
-                      .filter((e) => e.sourceId === source.id)
-                      .map((e) => (
-                        <EvidenceButton key={e.id} id={e.id} />
-                      ))}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+          <section
+            className="panel source-library"
+            id="project-sources"
+            tabIndex={-1}
+          >
+            <SectionTitle
+              title={
+                project.synthetic
+                  ? "Fictional source library"
+                  : "Official document library"
+              }
+              description={
+                project.synthetic
+                  ? undefined
+                  : "Original documents remain in their published language. Unknown dates and unverified contents are explicitly marked."
+              }
+            />
+            <Link
+              className="text-link"
+              href={`/projects/${project.id}/decisions#recorded-versions`}
+            >
+              Compare the recorded versions <ArrowRight size={15} />
+            </Link>
+            <ul className="prose-list">
+              {project.sources.map((source) => (
+                <li key={source.id}>
+                  <a
+                    href={source.url ?? undefined}
+                    target="_blank"
+                    rel="noreferrer"
+                    translate="no"
+                    lang="en"
+                  >
+                    {source.title}
+                  </a>{" "}
+                  · <LocalizedDate value={source.date} />
+                  {project.evidence
+                    .filter((e) => e.sourceId === source.id)
+                    .map((e) => (
+                      <EvidenceButton key={e.id} id={e.id} />
+                    ))}
+                </li>
+              ))}
+            </ul>
+          </section>
           <div className="print-only">
             <h2>Decision brief</h2>
             {project.decisions.map((d) => (

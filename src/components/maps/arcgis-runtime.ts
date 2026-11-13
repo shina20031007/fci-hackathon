@@ -11,7 +11,7 @@ export const addressLayerUrl =
   "https://utility.arcgis.com/usrsvcs/servers/d4d0c6dedec14e59930688f3830776c6/rest/services/OpenData/OpenData/MapServer/1";
 const roadLayerUrl =
   "https://utility.arcgis.com/usrsvcs/servers/ab85e142e5de445aa75a678b049048dd/rest/services/OpenData/OpenData/MapServer/2";
-const key = process.env.NEXT_PUBLIC_ARCGIS_API_KEY;
+const key = process.env.NEXT_PUBLIC_ARCGIS_API_KEY?.trim();
 const colors = ["#165c8c", "#8c4d12", "#465b86"];
 export type MapRuntime = Awaited<ReturnType<typeof createCivicMap>>;
 export async function createCivicMap(
@@ -20,6 +20,8 @@ export async function createCivicMap(
     onLocation: (point: [number, number]) => void;
     onProject: (id: string) => void;
     onError: () => void;
+    onServiceError: (service: "basemap" | "search", message: string) => void;
+    onBasemapFallback: () => void;
     translate: (text: string) => string;
   },
 ) {
@@ -54,9 +56,6 @@ export async function createCivicMap(
   const Extent = (await loader.import(
     "@arcgis/core/geometry/Extent.js",
   )) as typeof import("@arcgis/core/geometry/Extent.js").default;
-  const esriConfig = (await loader.import(
-    "@arcgis/core/config.js",
-  )) as typeof import("@arcgis/core/config.js").default;
   const LayerSearchSource = (await loader.import(
     "@arcgis/core/widgets/Search/LayerSearchSource.js",
   )) as typeof import("@arcgis/core/widgets/Search/LayerSearchSource.js").default;
@@ -81,7 +80,9 @@ export async function createCivicMap(
       return new Polyline({ paths: [g.coordinates], spatialReference });
     return new Polygon({ rings: g.coordinates, spatialReference });
   }
-  if (key) esriConfig.apiKey = key;
+  let disposed = false;
+  let basemapRequest = 0;
+  let fallbackRoads = false;
   let t = handlers.translate;
   const projectsLayer = new GraphicsLayer({ title: "Project geography" });
   const selectedLayer = new GraphicsLayer({ title: "Selected location" });
@@ -121,19 +122,43 @@ export async function createCivicMap(
     maxResults: 6,
     maxSuggestions: 6,
   });
-  search.sources = new Collection<LayerSearchSource | LocatorSearchSource>([
-    localSearch,
-  ]);
-  if (key)
-    search.sources.add(
-      new LocatorSearchSource({
+  const canadaSearch = key
+    ? new LocatorSearchSource({
         url: "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer",
         apiKey: key,
         countryCode: "CA",
+        singleLineFieldName: "SingleLine",
         name: "Canada (Esri)",
+        placeholder: "Search a Canadian address",
         outFields: ["Match_addr"],
-      }),
+      })
+    : undefined;
+  search.sources = new Collection<LayerSearchSource | LocatorSearchSource>(
+    canadaSearch ? [canadaSearch, localSearch] : [localSearch],
+  );
+  search.activeSourceIndex = 0;
+  search.addEventListener("arcgisSearchComplete", (event) => {
+    if (disposed) return;
+    const failure = event.detail.errors?.find(
+      (result) => result.source === canadaSearch,
     );
+    if (failure) {
+      search.activeSourceIndex = search.sources.indexOf(localSearch);
+      handlers.onServiceError(
+        "search",
+        authorizationFailure(failure.error)
+          ? "Canada address search access was denied. Waterloo Region search is available."
+          : "Canada address search is unavailable. Waterloo Region search is available.",
+      );
+    } else if (event.detail.errors?.length) {
+      handlers.onServiceError(
+        "search",
+        "Address search is unavailable. Select a point or enter coordinates.",
+      );
+    } else {
+      handlers.onServiceError("search", "");
+    }
+  });
   component.append(search);
   container.append(component);
   function selectLocation(point: Point) {
@@ -145,7 +170,8 @@ export async function createCivicMap(
   }
   component.addEventListener("arcgisViewClick", async (event) => {
     if (event.detail.mapPoint) selectLocation(event.detail.mapPoint);
-    const hits = await component.hitTest(event.detail);
+    const hits = await component.hitTest(event.detail).catch(() => null);
+    if (!hits || disposed) return;
     const hit = hits.results.find(
       (r) => r.type === "graphic" && r.graphic.layer === projectsLayer,
     );
@@ -156,7 +182,23 @@ export async function createCivicMap(
     const point = event.detail.result.feature.geometry;
     if (point?.type === "point") selectLocation(point as Point);
   });
-  component.addEventListener("arcgisLayerViewCreateError", handlers.onError);
+  component.addEventListener("arcgisViewLayerviewCreateError", (event) => {
+    if (disposed) return;
+    const basemap = component.map?.basemap;
+    if (
+      basemap?.baseLayers.includes(event.detail.layer) ||
+      basemap?.referenceLayers.includes(event.detail.layer)
+    ) {
+      basemapRequest++;
+      fallbackRoads = true;
+      if (component.map) component.map.basemap = streetBasemap;
+      handlers.onBasemapFallback();
+      handlers.onServiceError(
+        "basemap",
+        "Basemap unavailable. Showing OpenStreetMap.",
+      );
+    } else handlers.onError();
+  });
   await component.viewOnReady();
   const view = component.view;
   if (!view) throw Error("Map view unavailable");
@@ -168,6 +210,10 @@ export async function createCivicMap(
     ) {
       t = translate;
       localSearch.name = t("Waterloo Region addresses");
+      if (canadaSearch) {
+        canadaSearch.name = t("Canada (Esri)");
+        canadaSearch.placeholder = t("Search a Canadian address");
+      }
       const popup = view.popup;
       const openScopeId = popup?.visible
         ? popup.selectedFeature?.attributes?.scopeId
@@ -274,19 +320,47 @@ export async function createCivicMap(
     setRoads(visible: boolean) {
       roads.visible = visible;
     },
-    setBasemap(name: string) {
-      if (!component.map) return;
-      component.map.basemap =
-        name === "roads"
-          ? streetBasemap
-          : key
-            ? new Basemap({
-                style: {
-                  id:
-                    name === "imagery" ? "arcgis/imagery" : "arcgis/light-gray",
-                },
-              })
-            : streetBasemap;
+    async setBasemap(name: string) {
+      const request = ++basemapRequest;
+      if (!component.map || disposed) return;
+      if (!key || (name === "roads" && fallbackRoads)) {
+        component.map.basemap = streetBasemap;
+        return;
+      }
+      const candidate = new Basemap({
+        style: {
+          id:
+            name === "imagery"
+              ? "arcgis/imagery"
+              : name === "gray"
+                ? "arcgis/light-gray"
+                : "arcgis/streets",
+          apiKey: key,
+        },
+      });
+      try {
+        // Load before swapping: a denied service must not blank the existing map.
+        await candidate.loadAll();
+        if (disposed || request !== basemapRequest) {
+          candidate.destroy();
+          return;
+        }
+        component.map.basemap = candidate;
+        fallbackRoads = false;
+        handlers.onServiceError("basemap", "");
+      } catch (error) {
+        candidate.destroy();
+        if (disposed || request !== basemapRequest) return;
+        fallbackRoads = true;
+        component.map.basemap = streetBasemap;
+        handlers.onBasemapFallback();
+        handlers.onServiceError(
+          "basemap",
+          authorizationFailure(error)
+            ? "Basemap access was denied. Showing OpenStreetMap."
+            : "Basemap unavailable. Showing OpenStreetMap.",
+        );
+      }
     },
     focus(project?: CivicProject) {
       const geometries = project?.scopes.map((scope) =>
@@ -317,6 +391,8 @@ export async function createCivicMap(
         .catch(handlers.onError);
     },
     destroy() {
+      disposed = true;
+      basemapRequest++;
       component.remove();
     },
   };
@@ -350,4 +426,21 @@ function loadArcGIS(): Promise<ArcGISLoader> {
     document.head.append(script);
   });
   return sdkPromise;
+}
+
+// Inspect status codes only; never expose service payloads, URLs or credentials.
+function authorizationFailure(error: unknown, depth = 0): boolean {
+  if (!error || typeof error !== "object" || depth > 6) return false;
+  if (Array.isArray(error))
+    return error.some((item) => authorizationFailure(item, depth + 1));
+  const record = error as Record<string, unknown>;
+  if (
+    [record.code, record.httpStatus, record.status].some((code) =>
+      [401, 403, 498, 499].includes(Number(code)),
+    )
+  )
+    return true;
+  return ["details", "error", "raw", "cause", "errors"].some((name) =>
+    authorizationFailure(record[name], depth + 1),
+  );
 }

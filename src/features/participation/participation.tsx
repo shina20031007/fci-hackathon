@@ -83,11 +83,7 @@ export function Participation({ project }: { project: CivicProject }) {
     <Localized>
       {
         <>
-          <SectionTitle
-            eyebrow="05 / ACTION NAVIGATOR"
-            title="Know what you can still do."
-            description="Participation windows are separate from decision stages. Dates need their own evidence."
-          />
+          <SectionTitle title="How to participate" />
           <div className="participation-banner">
             <CalendarDays size={27} />
             <div>
@@ -215,24 +211,13 @@ export function Participation({ project }: { project: CivicProject }) {
                   records.
                 </Empty>
               )}
-              <div className="notice">
-                <CalendarDays size={18} />
-                <p>
-                  A meeting date is never used as a submission deadline. Unknown
-                  deadlines remain unverified.
-                </p>
-              </div>
             </section>
             <section className="panel concern-organizer">
               <div className="row between">
-                <span className="eyebrow">YOUR PERSONAL WORKSPACE</span>
                 <NotebookPen size={23} />
               </div>
               <h2>Organize your questions.</h2>
-              <p className="muted">
-                Prepare a clear question in your own words. This tool does not
-                submit feedback or represent municipal advice.
-              </p>
+              <p className="muted">Draft only. Not submitted.</p>
               <label>
                 Decision item
                 <select
@@ -311,10 +296,6 @@ export function Participation({ project }: { project: CivicProject }) {
               </div>
               <p className="form-status" role="status">
                 {message}
-              </p>
-              <p className="small muted">
-                Your draft stays in this browser until you download or clear it.
-                Avoid including private personal details on a shared device.
               </p>
             </section>
           </div>
