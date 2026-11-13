@@ -4,7 +4,8 @@ const config: NextConfig = {
   devIndicators: false,
   agentRules: false,
   distDir:
-    process.env.NEXT_DIST_DIR ??
-    (process.env.NODE_ENV === "production" ? ".next-production" : ".next"),
+    process.env.NODE_ENV === "production"
+      ? ".next"
+      : (process.env.NEXT_DIST_DIR ?? ".next"),
 };
 export default config;

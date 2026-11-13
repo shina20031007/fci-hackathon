@@ -72,7 +72,7 @@ New projects start unpublished. Add source documents, evidence, and at least one
 
 Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4 plus a shared CSS design system, Lucide icons, Zod 4, Prisma 6.19, SQLite, ArcGIS Maps SDK for JavaScript 5.2 Map Components, Turf spatial calculations, and deterministic word comparison. npm's lockfile pins the installed dependency graph.
 
-Next's supported webpack mode is used for development and production builds because Turbopack's PostCSS subprocess could not bind its internal port in the restricted development environment. No custom webpack loaders or additional backend services are needed. Development uses `.next`, production builds use `.next-production`, and browser tests use `.next-test`, avoiding shared build-manifest conflicts.
+Next's supported webpack mode is used for development and production builds because Turbopack's PostCSS subprocess could not bind its internal port in the restricted development environment. No custom webpack loaders or additional backend services are needed. Development and production builds use Next.js's standard `.next` output, which Vercel expects; browser tests use `.next-test`. Stop the local development server before running a production build so both processes do not write to `.next` at once.
 
 ```text
 src/
