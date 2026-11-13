@@ -15,15 +15,17 @@ import { ProjectMap } from "@/components/maps/project-map";
 export function Discovery({
   projects,
   initialQuery = "",
+  initialCategory = "",
   nextModule = "",
 }: {
   projects: CivicProject[];
   initialQuery?: string;
+  initialCategory?: string;
   nextModule?: string;
 }) {
   const [query, setQuery] = useState(initialQuery),
     [municipality, setMunicipality] = useState(""),
-    [category, setCategory] = useState(""),
+    [category, setCategory] = useState(initialCategory),
     [status, setStatus] = useState(""),
     [participation, setParticipation] = useState(""),
     [recent, setRecent] = useState(false),

@@ -5,7 +5,7 @@ test("real discovery and fixture evidence, map and private draft workflows", asy
 }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: /Understand the decisions/ }),
+    page.getByRole("heading", { name: /Your city.*Your perspective/ }),
   ).toBeVisible();
   await page.getByLabel("Search your community").fill("Maryhill");
   await page.getByRole("button", { name: "Search projects" }).click();

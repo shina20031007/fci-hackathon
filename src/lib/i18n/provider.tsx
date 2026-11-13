@@ -126,7 +126,7 @@ export function Localized({ children }: { children: ReactNode }) {
   const { locale } = useLanguage();
   return localize(children, locale);
 }
-export function LanguageSelector() {
+export function LanguageSelector({ compact = false }: { compact?: boolean }) {
   const { locale, setLocale, t } = useLanguage();
   return (
     <label className="language-selector">
@@ -139,7 +139,7 @@ export function LanguageSelector() {
       >
         {Object.entries(names).map(([value, name]) => (
           <option key={value} value={value} lang={value}>
-            {name}
+            {compact ? { en: "EN", fr: "FR", "zh-CN": "中文" }[value] : name}
           </option>
         ))}
       </select>

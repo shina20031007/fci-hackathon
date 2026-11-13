@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { LanguageSelector, useLanguage } from "@/lib/i18n/provider";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { GitBranch, Menu, X, ArrowUpRight, ChevronDown } from "lucide-react";
+import { MapPin, Menu, X, ArrowUpRight, ChevronDown } from "lucide-react";
+import { SubscribeDialog } from "./subscribe-dialog";
 export function NavigationDropdown({
   id,
   label,
@@ -112,12 +113,12 @@ function NavigationHeader() {
         <Link
           className="civic-brand"
           href="/"
-          aria-label={`CivicTrace · ${t("Home")}`}
+          aria-label={`cityora. · ${t("Home")}`}
         >
           <span>
-            <GitBranch size={25} aria-hidden="true" />
+            <MapPin size={25} aria-hidden="true" />
           </span>
-          CivicTrace
+          cityora.
         </Link>
         <button
           ref={trigger}
@@ -148,9 +149,6 @@ function NavigationHeader() {
             }
           }}
         >
-          <Link href="/" aria-current={pathname === "/" ? "page" : undefined}>
-            {t("Home")}
-          </Link>
           <NavigationDropdown
             id="explore-navigation"
             label={t("Explore decisions")}
@@ -166,27 +164,22 @@ function NavigationHeader() {
             </Link>
             <Link href="/explore#category">{t("Find by category")}</Link>
           </NavigationDropdown>
-          <NavigationDropdown
-            id="about-navigation"
-            label={t("About CivicTrace")}
-            open={open}
-            setOpen={setOpen}
-            active={pathname === "/about"}
+          <Link
+            href="/about"
+            aria-current={pathname === "/about" ? "page" : undefined}
           >
-            <Link href="/about#how-it-works">{t("How it works")}</Link>
-            <Link href="/about#sources-and-limitations">
-              {t("Sources & limitations")}
-            </Link>
-          </NavigationDropdown>
+            {t("About")}
+          </Link>
+          <SubscribeDialog />
           <div className="civic-language">
-            <LanguageSelector />
+            <LanguageSelector compact />
           </div>
           <Link
             className="civic-admin"
             href="/admin"
             aria-current={pathname === "/admin" ? "page" : undefined}
           >
-            {t("Admin Portal")}
+            {t("Staff Portal")}
             <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
         </nav>
@@ -207,13 +200,11 @@ export function Shell({ children }: { children: ReactNode }) {
         {children}
       </main>
       <footer className="app-footer">
-        <span>{t("CivicTrace · From Policy to People")}</span>
+        <Link href="/" className="cityora-footer-brand" translate="no">
+          cityora.
+        </Link>
         <Link href="/about#sources-and-limitations">
           {t("Sources & limitations")}
-        </Link>
-        <Link href="/studio">
-          {t("Municipal Studio")}
-          <ArrowUpRight size={14} aria-hidden="true" />
         </Link>
       </footer>
     </div>

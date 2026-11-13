@@ -34,7 +34,7 @@ export function AdminPortal() {
         </div>
         <SectionTitle
           title="Existing workspaces"
-          description="Continue using the established CivicTrace workflows."
+          description="Continue using the established cityora. workflows."
         />
         <div className="methodology-grid">
           <section className="panel">

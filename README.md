@@ -189,3 +189,19 @@ The SDK runtime uses Esri's documented `$arcgis.import` / Map Components CDN pat
 Migration `202611130001_nullable_dates_and_closure` preserves existing rows, allows unknown source/decision dates, and adds an optional date-only `closedOn` for historical consultations. It does not reset the database. Run `npm run db:setup` when pulling this change; the seed inserts missing IDs only and preserves all existing edits/publications. Test setup applies all migrations to disposable databases.
 
 For Maryhill, the published feedback period ended June 10, 2026; no artificial end-of-day time is stored. For Wilmot, requesting provincial-decision notification is distinguished from a time-bounded consultation. The budget's final date is TBC; a councillor-motion deadline must never be presented as a public deadline.
+
+## Homepage photography and navigation
+
+The public brand is **cityora.** The homepage is static and does not query Prisma. Search submits `q` to the existing `/explore` route; photographic topic links pass the canonical `category` enum to the same filtering interface. Categories with no published projects show the existing empty state. The subscription dialog validates email syntax locally but has no subscription backend: submission is disabled, no email is sent or persisted, and closing the dialog clears the input.
+
+The Toronto hero in `public/images/hero/toronto.webp` is the original user-supplied image, copied without alteration. Its third-party licensing provenance was not provided. Category photographs are illustrative Toronto scenes, not depictions of the listed municipal projects or evidence of their boundaries. They are resized and encoded as WebP in `public/images/categories/`, under the [Pexels License](https://www.pexels.com/license/) (checked November 13, 2026), which permits website use and modification without required attribution. No endorsement is implied.
+
+| Local image           | Source                                                                                                                                           |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `transportation.webp` | [Toronto streetcar](https://www.pexels.com/photo/red-and-white-tram-on-the-street-14318541/)                                                     |
+| `housing.webp`        | [Toronto brick house](https://www.pexels.com/photo/brick-house-3631733/)                                                                         |
+| `land-use.webp`       | [Downtown Toronto streetscape](https://www.pexels.com/photo/view-of-a-busy-street-between-skyscrapers-downtown-toronto-ontario-canada-18063287/) |
+| `infrastructure.webp` | [Humber Bay Arch Bridge](https://www.pexels.com/photo/humber-bay-arch-bridge-during-night-6145599/)                                              |
+| `environment.webp`    | [Toronto park and CN Tower](https://www.pexels.com/photo/people-walking-on-park-near-tower-137581/)                                              |
+| `budget.webp`         | [Toronto City Hall](https://www.pexels.com/photo/toronto-city-hall-14328593/)                                                                    |
+| `services.webp`       | [Toronto Reference Library](https://www.pexels.com/photo/interior-of-toronto-public-library-14368215/)                                           |

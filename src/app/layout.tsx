@@ -4,10 +4,10 @@ import "@arcgis/core/assets/esri/themes/light/main.css";
 import { LanguageProvider } from "@/lib/i18n/provider";
 import { Shell } from "@/components/layout/shell";
 export const metadata: Metadata = {
-  icons: { icon: "/civictrace-mark.svg" },
+  icons: { icon: "/cityora-mark.svg" },
   title: {
-    default: "CivicTrace — From Policy to People",
-    template: "%s | CivicTrace",
+    default: "cityora. — Your city. Your perspective.",
+    template: "%s | cityora.",
   },
   description:
     "Follow municipal decisions from proposals to evidence, public input, and participation.",

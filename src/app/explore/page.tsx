@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export default async function Explore({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; next?: string }>;
+  searchParams: Promise<{ q?: string; next?: string; category?: string }>;
 }) {
   return (
     <ExploreView

@@ -78,10 +78,8 @@ test("real cases stay separate, historical consultation is closed without an inv
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator(".project-card")).toHaveCount(3);
-  await expect(page.locator(".project-grid")).not.toContainText(
-    "Fictional example",
-  );
+  await expect(page.locator("a[data-category]")).toHaveCount(7);
+  await expect(page.locator(".project-card, .workflow-grid")).toHaveCount(0);
   await page.goto("/projects/maryhill-road/participation");
   await expect(page.locator(".opportunity-card")).toContainText("Closed");
   await expect(page.locator(".opportunity-card")).toContainText("Jun 10, 2026");
@@ -202,7 +200,9 @@ test("integrated navigation opens live routes, sources and browser history", asy
   await trigger.focus();
   await trigger.press("ArrowDown");
   await expect(
-    page.getByRole("link", { name: "All projects", exact: true }),
+    page
+      .getByRole("navigation", { name: "Main navigation" })
+      .getByRole("link", { name: "All projects", exact: true }),
   ).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
@@ -262,10 +262,10 @@ test("integrated navigation opens live routes, sources and browser history", asy
     .click();
   await expect(page).toHaveURL(/\/explore$/);
   await expect(page.locator(".project-card")).toHaveCount(3);
-  await page.getByRole("link", { name: "Admin Portal", exact: true }).click();
+  await page.getByRole("link", { name: "Staff Portal", exact: true }).click();
   await expect(page).toHaveURL(/\/admin$/);
   await expect(
-    page.getByRole("link", { name: "Municipal Studio", exact: true }).last(),
+    page.getByRole("link", { name: "Open Municipal Studio", exact: true }),
   ).toHaveAttribute("href", "/studio");
 });
 
@@ -276,7 +276,10 @@ test("integrated 390px menus preserve project and locale", async ({ page }) => {
   await page
     .getByRole("button", { name: "Explore decisions", exact: true })
     .click();
-  await page.getByRole("link", { name: "All projects", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("link", { name: "All projects", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "Menu", exact: true }),
   ).toHaveAttribute("aria-expanded", "false");
@@ -534,4 +537,153 @@ test("ArcGIS missing key keeps regional search and coordinate input", async ({
   await page.getByRole("button", { name: "Check location" }).click();
   await expect(page.getByText(/Selected coordinates:/)).toBeVisible();
   await expect(page.locator(".geography-details")).toBeVisible();
+});
+
+test("cityora homepage search and all seven category links reuse Explore filters", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/");
+  await expect(page).toHaveTitle("cityora. — Your city. Your perspective.");
+  await expect(page.locator("h1")).toHaveText("Your city.Your perspective.");
+  await expect(
+    page.locator("main .project-card, main .workflow-grid"),
+  ).toHaveCount(0);
+  await page
+    .getByRole("searchbox", { name: "Search your community" })
+    .fill("Maryhill");
+  await page
+    .getByRole("searchbox", { name: "Search your community" })
+    .press("Enter");
+  await expect(page).toHaveURL(/explore\?q=Maryhill/);
+  await expect(
+    page.getByRole("textbox", { name: "Search decisions" }),
+  ).toHaveValue("Maryhill");
+  await expect(page.locator(".project-card")).toHaveCount(1);
+  const categories = [
+    "Transportation",
+    "Housing",
+    "Land Use and Zoning",
+    "Infrastructure",
+    "Environment",
+    "Municipal Budget",
+    "Public Services",
+  ];
+  for (const category of categories) {
+    await page.goto("/");
+    await page.locator(`a[data-category="${category}"]`).click();
+    await expect(page.locator("#category")).toHaveValue(category);
+    await expect(page.locator(".project-card")).toHaveCount(
+      ["Transportation", "Land Use and Zoning", "Municipal Budget"].includes(
+        category,
+      )
+        ? 1
+        : 0,
+    );
+  }
+  await page.goto("/explore?category=invalid");
+  await expect(page.locator("#category")).toHaveValue("");
+  expect(errors).toEqual([]);
+});
+
+test("cityora subscription stays unavailable, validates locally and clears email on close", async ({
+  page,
+}) => {
+  const transmitted: string[] = [];
+  page.on("request", (request) => {
+    if (
+      (request.postData() ?? "").includes("resident@example.com") ||
+      request.url().includes("resident%40example.com")
+    )
+      transmitted.push(request.url());
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Subscribe", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText(
+    "Email subscriptions are not available yet.",
+  );
+  const email = dialog.getByLabel("Email address", { exact: true });
+  await email.fill("invalid");
+  await email.press("Tab");
+  await expect(dialog.getByRole("alert")).toHaveText(
+    "Enter a valid email address.",
+  );
+  await email.fill("resident@example.com");
+  await expect(dialog.getByRole("alert")).toHaveCount(0);
+  await expect(
+    dialog.getByRole("button", { name: "Subscription unavailable" }),
+  ).toBeDisabled();
+  await email.press("Enter");
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Subscribe", exact: true }),
+  ).toBeFocused();
+  await page.getByRole("button", { name: "Subscribe", exact: true }).click();
+  await expect(email).toHaveValue("");
+  await dialog
+    .getByRole("button", { name: "Close subscription dialog" })
+    .click();
+  expect(transmitted).toEqual([]);
+  expect(
+    await page.evaluate(() =>
+      JSON.stringify({ ...localStorage, ...sessionStorage }),
+    ),
+  ).not.toContain("resident@example.com");
+});
+
+test("cityora mobile photos, languages and subscription remain accessible", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  for (const [locale, title] of [
+    ["en", "Your city."],
+    ["fr", "Votre ville."],
+    ["zh-CN", "你的城市。"],
+  ]) {
+    await page
+      .getByRole("button", {
+        name: /^(Menu|菜单|Menu principal)$/,
+        exact: true,
+      })
+      .click();
+    await page.locator(".language-selector select").selectOption(locale);
+    await page.locator(".civic-mobile-toggle").click();
+    await expect(page.locator("h1")).toContainText(title);
+    await expect(page.locator(".civic-brand")).toHaveText("cityora.");
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    const accessibility = await new AxeBuilder({ page })
+      .include("main")
+      .analyze();
+    expect(accessibility.violations).toEqual([]);
+  }
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
+  const images = page.locator("main img");
+  for (const image of await images.all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        image.evaluate(
+          (element: HTMLImageElement) =>
+            element.complete && element.naturalWidth > 0,
+        ),
+      )
+      .toBe(true);
+  }
+  await page.locator(".civic-mobile-toggle").click();
+  await page.getByRole("button", { name: "订阅", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("邮件订阅暂未开放。");
+  const accessibility = await new AxeBuilder({ page }).analyze();
+  expect(accessibility.violations).toEqual([]);
 });

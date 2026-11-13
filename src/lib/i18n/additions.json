@@ -39,9 +39,9 @@
     "fr": "Les recherches d’adresse sont envoyées au fournisseur sélectionné. Les lieux sélectionnés ne sont pas enregistrés. Les informations cartographiques sont aussi disponibles en texte.",
     "zh-CN": "地址查询会发送给所选搜索服务。选择的位置不会保存，地图信息同时提供文字版本。"
   },
-  "Three real municipal cases are linked to official sources. Three fictional Fairhaven cases are kept separately for testing. CivicTrace is independent and is not a government website.": {
-    "fr": "Trois dossiers municipaux réels sont liés à des sources officielles. Trois cas fictifs de Fairhaven sont conservés séparément pour les essais. CivicTrace est indépendant et n’est pas un site gouvernemental.",
-    "zh-CN": "三个真实市政案例均关联官方来源，三个虚构的 Fairhaven 案例另行保留用于测试。CivicTrace 是独立项目，并非政府网站。"
+  "Three real municipal cases are linked to official sources. Three fictional Fairhaven cases are kept separately for testing. cityora. is independent and is not a government website.": {
+    "fr": "Trois dossiers municipaux réels sont liés à des sources officielles. Trois cas fictifs de Fairhaven sont conservés séparément pour les essais. cityora. est indépendant et n’est pas un site gouvernemental.",
+    "zh-CN": "三个真实市政案例均关联官方来源，三个虚构的 Fairhaven 案例另行保留用于测试。cityora. 是独立项目，并非政府网站。"
   },
   "Official administrative boundaries and licensed road centreline data provide context. A derived corridor is not an official project boundary. Regional address search uses licensed address points. No property-level impact model is provided.": {
     "fr": "Les limites administratives officielles et les axes routiers sous licence donnent le contexte. Un corridor calculé n’est pas une limite officielle de projet. La recherche régionale utilise des points d’adresse sous licence. Aucun modèle d’impact à l’échelle des propriétés n’est fourni.",
@@ -151,9 +151,9 @@
     "fr": "Espaces de travail existants",
     "zh-CN": "现有工作区"
   },
-  "Continue using the established CivicTrace workflows.": {
-    "fr": "Continuez à utiliser les processus existants de CivicTrace.",
-    "zh-CN": "继续使用 CivicTrace 现有工作流程。"
+  "Continue using the established cityora. workflows.": {
+    "fr": "Continuez à utiliser les processus existants de cityora.",
+    "zh-CN": "继续使用 cityora. 现有工作流程。"
   },
   "Project editing, evidence review, draft previews and publication remain in Municipal Studio. Admin Portal does not duplicate them.": {
     "fr": "La modification des projets, la révision des preuves, l’aperçu des brouillons et la publication restent dans le Studio municipal. Le portail d’administration ne les reproduit pas.",

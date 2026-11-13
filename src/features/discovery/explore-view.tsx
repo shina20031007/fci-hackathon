@@ -1,14 +1,15 @@
 "use client";
 import { Localized } from "@/lib/i18n/provider";
 import { Discovery } from "@/features/discovery/discovery";
-import type { CivicProject } from "@/lib/validation/project";
+import { categories, type CivicProject } from "@/lib/validation/project";
 export function ExploreView({
   projects,
   params,
 }: {
   projects: CivicProject[];
-  params: { q?: string; next?: string };
+  params: { q?: string; next?: string; category?: string };
 }) {
+  const category = categories.find((value) => value === params.category) ?? "";
   return (
     <Localized>
       {
@@ -21,8 +22,10 @@ export function ExploreView({
             </p>
           </div>
           <Discovery
+            key={`${params.q ?? ""}:${category}`}
             projects={projects}
             initialQuery={params.q}
+            initialCategory={category}
             nextModule={params.next}
           />
         </div>

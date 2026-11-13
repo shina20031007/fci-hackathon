@@ -11,7 +11,7 @@ export default function About() {
             <p className="eyebrow">ABOUT & METHODOLOGY</p>
             <h1>A clear explanation should leave a trail.</h1>
             <p>
-              CivicTrace connects individual decisions to sources, changes,
+              cityora. connects individual decisions to sources, changes,
               geography, public feedback, and participation.
             </p>
           </div>
@@ -25,7 +25,7 @@ export default function About() {
               <h2>From policy to people.</h2>
               <p>
                 Built for the Future Cities Institute CIVIC Hack challenge:
-                making municipal decisions easier to understand. CivicTrace adds
+                making municipal decisions easier to understand. cityora. adds
                 decision-to-impact traceability to project discovery. It
                 complements official municipal records and engagement platforms;
                 it does not replace them.
@@ -80,7 +80,7 @@ export default function About() {
               <p>
                 Three real municipal cases are linked to official sources. Three
                 fictional Fairhaven cases are kept separately for testing.
-                CivicTrace is independent and is not a government website.
+                cityora. is independent and is not a government website.
               </p>
               <p>
                 Word differences, spatial relationships, project counts, and
