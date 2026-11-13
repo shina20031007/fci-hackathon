@@ -1,0 +1,51 @@
+{
+  "reviewedOn": "2026-11-12",
+  "licenseUrl": "https://www.regionofwaterloo.ca/government-and-council/transparency-and-accountability/open-data/",
+  "attribution": "Contains information provided by the Regional Municipality of Waterloo under licence",
+  "sources": [
+    {
+      "name": "Cities and Towns",
+      "itemId": "369f39237bf844e3abcf39d71947ee49",
+      "file": "wilmot-complete.geojson",
+      "meaning": "Derived complete township coverage from exact union of official municipal/settlement partition polygons; not parcel designation or site-specific impact.",
+      "selection": "Municipality = 'Wilmot'; OBJECTID IN (6,23,24,25,26,27,28,29,30)",
+      "itemModified": "2026-05-01",
+      "geometryModified": "Not supplied by layer; item modification is not a surveyed boundary date",
+      "caveat": "OBJECTID6 alone excludes named settlement polygons. Do not use original wilmot.geojson as whole-township coverage. Reconstruct with all9parts.",
+      "derivation": "@turf/union 7.4.0; no simplification, buffer or manual hole deletion. Input/output area match to 0.000266 square metres."
+    },
+    {
+      "name": "Regional Boundary",
+      "itemId": "259750cc5e8c44f78c56d27ac28b04ed",
+      "file": "region.geojson",
+      "meaning": "Administrative geography for region-wide policy; not project construction boundary",
+      "selection": "OBJECTID=2; ShortName=Region of Waterloo",
+      "itemModified": "2026-04-23",
+      "caveat": "Official metadata warns of known/suspected errors and differences with neighbouring municipal limits; not a legal survey"
+    },
+    {
+      "name": "Roads",
+      "itemId": "ab85e142e5de445aa75a678b049048dd",
+      "file": "maryhill-corridor.geojson",
+      "meaning": "Derived corridor context joined from six unchanged official active centreline segments. Not an official project boundary, study area, or impact buffer.",
+      "selection": "OBJECTID IN (5158,18016,5269,9526,5270,5267)",
+      "itemModified": "2026-05-01",
+      "geometryModified": "2026-01-27",
+      "projectPage": "https://www.regionofwaterloo.ca/programs-and-services/roads-and-transportation/road-construction/construction-projects/maryhill-road/",
+      "officialMapPDF": "https://media-003-ca.cdn.govstack.com/regionofwaterloo-018-ca/media/tlrbjckd/maryhill-road-project-map.pdf"
+    },
+    {
+      "name": "Addresses",
+      "itemId": "d4d0c6dedec14e59930688f3830776c6",
+      "file": "address-provenance.json",
+      "meaning": "Live publicly queryable point-based address search for Waterloo Region. Licensed open data. No Esri paid geocoding service required.",
+      "itemModified": "2026-05-01"
+    }
+  ],
+  "excluded": {
+    "itemId": "3e549c213c8b4f76946689410084aa72",
+    "title": "Capital Projects External",
+    "reason": "Public official project geometry exists, but item licenseInfo is null and it is not categorized Open Data; do not redistribute under Region Open Data License without verifying coverage. Link official app instead.",
+    "app": "https://experience.arcgis.com/experience/2030d50b04b34fa7a38995d352821cb0/"
+  }
+}

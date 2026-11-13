@@ -1,0 +1,81 @@
+{
+  "checkedOn": "2026-11-12",
+  "budget": {
+    "officialPage": "https://www.regionofwaterloo.ca/planandbudget",
+    "section": "2027 Meeting Schedule and Documents",
+    "pagePublicationDate": null,
+    "schedule": [
+      ["2026-12-16", "Plan and Budget Overview"],
+      ["2027-01-19", "Detailed Budget Review Day 1"],
+      ["2027-01-27", "Detailed Budget Review Day 2"],
+      ["2027-02-02", "Police Service Budget Presentation"],
+      [
+        "2027-02-10",
+        "Responses to Councillor Requests and additional follow-ups"
+      ],
+      ["2027-02-15", "Deadline for submission of Councillor motions"]
+    ],
+    "finalBudgetDay": "Date to be confirmed",
+    "publicParticipationDeadline": null,
+    "limitations": "Meeting dates are not public submission deadlines. Councillor-motion deadline is not a resident deadline. Current linked Financial Budget Book is the 2026 edition.",
+    "councilNews": {
+      "url": "https://www.regionofwaterloo.ca/news-public-notices-and-council-info/posts/making-decisions-that-matter-june-17-2026/",
+      "publicationDate": "2026-06-18",
+      "meetingDate": "2026-06-17",
+      "section": "Roadmap to build the 2027 Plan and Budget",
+      "summary": "Official news describes development of a budget-review timeline. Its earlier February 23 final-decision target is superseded by current schedule indicating date to be confirmed."
+    },
+    "unverifiedReport": {
+      "url": "https://pub-regionofwaterloo.escribemeetings.com/filestream.ashx?DocumentId=17628",
+      "provenance": "Read the full report here link under Roadmap heading on official council news",
+      "result": "HTTP 403 from both web retrieval and direct fetch. Report content, identifier and date not verified. Official meeting minutes not obtained."
+    }
+  },
+  "maryhill": {
+    "regionalProjectPage": "https://www.regionofwaterloo.ca/programs-and-services/roads-and-transportation/road-construction/construction-projects/maryhill-road/",
+    "section": "Public engagement",
+    "publicationDate": null,
+    "updatedMonth": "2026-05",
+    "exactExcerpt": "Feedback can be submitted between May 27 to June 10, 2026.",
+    "headingAnchor": null,
+    "informationPackage": {
+      "url": "https://www.engagewr.ca/download_file/9956/3608",
+      "title": "Maryhill Road and Bridge Improvements — Public Meeting Information Package",
+      "documentDate": "2026-05-27",
+      "dateMeaning": "Public meeting date printed on cover; publication date not separately stated",
+      "page": 3,
+      "section": "Next steps",
+      "exactExcerpt": "The comment period runs from May 27 to June 10, 2026.",
+      "deadlinePrecision": "Date only; no end time stated",
+      "meeting": "2026-05-27 17:00–19:00 America/Toronto",
+      "status": "Historic comment period concluded"
+    },
+    "presentation": {
+      "url": "https://www.engagewr.ca/download_file/9990/3608",
+      "documentDate": "2026-05-27",
+      "pages": 12,
+      "verifiedSummary": "Page3 says watermain servicing was excluded following community feedback in2023. Page12 shows an August11 committee-report milestone as a planned next step, not proof of a meeting or approval."
+    },
+    "otherOfficialDocuments": [
+      [
+        "Proposed Cross-Sections",
+        "https://www.engagewr.ca/download_file/9957/3608"
+      ],
+      [
+        "Proposed Improvements (colour)",
+        "https://www.engagewr.ca/download_file/9958/3608"
+      ],
+      [
+        "Planning Policies and Principles",
+        "https://www.engagewr.ca/download_file/9955/3608"
+      ]
+    ],
+    "missing": "No project-specific 2026 committee decision, council adoption minutes or approved final design located. Do not upgrade proposed/preferred design to Council Decision.",
+    "budgetContext": {
+      "url": "https://media-003-ca.cdn.govstack.com/regionofwaterloo-018-ca/media/ynro4cd2/2026_final_budget_book.pdf",
+      "page": 45,
+      "section": "Transportation — Ten Year Capital Budget and Forecast",
+      "summary": "Contains project05654 under shorter historic scope, 70m east of Notre Dame Avenue to Charles Street West. Not evidence of final approval for full2026 preferred corridor design; do not reconcile amounts with new projectpage without review."
+    }
+  }
+}

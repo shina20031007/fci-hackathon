@@ -1,0 +1,103 @@
+{
+  "retrievedAt": "2026-11-13T02:29:50.938Z",
+  "queryUrl": "https://utility.arcgis.com/usrsvcs/servers/369f39237bf844e3abcf39d71947ee49/rest/services/OpenData/OpenData/MapServer/15/query?where=Municipality%3D%27Wilmot%27&outFields=*&outSR=4326&returnGeometry=true&f=geojson",
+  "item": {
+    "id": "369f39237bf844e3abcf39d71947ee49",
+    "owner": "RegionOfWaterloo",
+    "ownerId": "929752766a6351e6be7ca994ca7a10e7",
+    "orgId": "OmHQFOzJVFkeeZs8",
+    "created": 1661281120000,
+    "modified": 1777666425000,
+    "guid": null,
+    "name": null,
+    "title": "Cities and Towns",
+    "type": "Feature Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Feature Access",
+      "Feature Service",
+      "Service",
+      "Singlelayer",
+      "Service Proxy"
+    ],
+    "description": "The dataset contains the extents of the 7 area municipalites located within the Region of Waterloo, As well, it contains the extents larger towns and villages within the Region of Waterloo.",
+    "tags": [
+      "Base Data",
+      "Boundaries",
+      "Cities",
+      "Towns",
+      "Region of Waterloo"
+    ],
+    "snippet": "The primary usefulness of the dataset is to provide users with a featureclass which can be used to spatially identify a geographic placename whether it be a city, town or village. As well, it can be use for cartographic purposes.",
+    "thumbnail": "thumbnail/thumbnail1677168025003.png",
+    "documentation": null,
+    "extent": [
+      [-80.90399999999319, 43.186999999996345],
+      [-80.01399999999323, 43.6909999999963]
+    ],
+    "categories": ["/Categories/Open Data"],
+    "spatialReference": null,
+    "accessInformation": "Region of Waterloo - Information Technology Services (GIS)",
+    "classification": null,
+    "licenseInfo": "<p><span style='background-color:rgb(255,255,255); color:rgb(0,97,155); font-family:&quot;Avenir Next&quot;, Avenir, &quot;Helvetica Neue&quot;, sans-serif; font-size:14px;'><span style='display:inline !important; float:none; font-style:normal; font-variant-caps:normal; font-variant-ligatures:normal; font-weight:400; letter-spacing:normal; text-align:start; text-decoration-color:initial; text-decoration-style:initial; text-indent:0px; text-transform:none; word-spacing:0px;'>https://www.regionofwaterloo.ca/en/regional-government/open-data.aspx#Open-Data-Licence</span></span></p>",
+    "culture": "en-us",
+    "properties": null,
+    "advancedSettings": null,
+    "url": "https://utility.arcgis.com/usrsvcs/servers/369f39237bf844e3abcf39d71947ee49/rest/services/OpenData/OpenData/MapServer/15",
+    "sourceUrl": "https://gis.regionofwaterloo.ca/wamap/rest/services/OpenData/OpenData/MapServer/15",
+    "proxyFilter": null,
+    "access": "public",
+    "size": 82,
+    "subInfo": 0,
+    "appCategories": [],
+    "industries": [],
+    "languages": [],
+    "largeThumbnail": null,
+    "banner": null,
+    "screenshots": [],
+    "listed": false,
+    "commentsEnabled": true,
+    "numComments": 0,
+    "numRatings": 0,
+    "avgRating": 0,
+    "numViews": 0,
+    "scoreCompleteness": 95,
+    "groupDesignations": null,
+    "apiToken1ExpirationDate": -1,
+    "apiToken2ExpirationDate": -1,
+    "lastViewed": -1
+  },
+  "derivation": {
+    "PlaceName": "Wilmot",
+    "Municipality": "Wilmot",
+    "classification": "Derived municipal coverage — exact union of official Cities and Towns polygons",
+    "sourceObjectIds": [6, 23, 24, 25, 26, 27, 28, 29, 30],
+    "method": "Turf union of all polygons satisfying Municipality=Wilmot. No simplification, buffering, hole deletion or invented coordinates.",
+    "library": "@turf/union 7.4.0"
+  },
+  "validation": {
+    "checks": [
+      {
+        "place": "Baden",
+        "coordinate": [-80.668, 43.404],
+        "insideOriginal": false,
+        "insideUnion": true
+      },
+      {
+        "place": "New Hamburg",
+        "coordinate": [-80.71, 43.38],
+        "insideOriginal": false,
+        "insideUnion": true
+      },
+      {
+        "place": "Kitchener",
+        "coordinate": [-80.49, 43.45],
+        "insideOriginal": false,
+        "insideUnion": false
+      }
+    ],
+    "partArea": 265770452.93699443,
+    "unionArea": 265770452.9367284
+  }
+}

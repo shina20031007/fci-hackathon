@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "sqlite"
+  url = env("DATABASE_URL")
+}
+model Municipality {
+  id String @id
+  name String @unique
+  projects Project[]
+}
+model Project {
+  id String @id
+  municipalityId String
+  municipality Municipality @relation(fields: [municipalityId], references: [id])
+  title String
+  category String
+  neighbourhood String
+  summary String
+  rationale String
+  authority String
+  status String
+  synthetic Boolean @default(true)
+  summaryEvidenceId String
+  reviewStatus String @default("Draft")
+  revision Int @default(1)
+  updatedAt DateTime @updatedAt
+  verifiedAt String?
+  sources SourceDocument[]
+  evidence Evidence[]
+  decisions DecisionItem[]
+  events DecisionEvent[]
+  versions DocumentVersion[]
+  feedback PublicFeedbackTheme[]
+  opportunities ParticipationWindow[]
+  scopes GeographicScope[]
+  reviews ReviewRecord[]
+  publication Publication?
+  @@index([municipalityId, category, status])
+}
+model SourceDocument {
+  id String @id
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title String
+  type String
+  url String?
+  date String?
+  synthetic Boolean
+  evidence Evidence[]
+  @@index([projectId])
+}
+model Evidence {
+  id String @id
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sourceId String
+  source SourceDocument @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  excerpt String
+  section String
+  state String
+  verifiedAt String?
+  notes String
+  claims DecisionItem[]
+  events DecisionEvent[]
+  versions DocumentVersion[]
+  feedback PublicFeedbackTheme[]
+  opportunities ParticipationWindow[]
+  scopes GeographicScope[]
+  @@index([projectId, state])
+}
+model DecisionItem {
+  id String @id
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title String
+  explanation String
+  status String
+  authority String
+  conditions String
+  amendment String
+  uncertainty String
+  date String?
+  reviewState String
+  notes String
+  evidence Evidence[]
+  events DecisionEvent[]
+  feedback PublicFeedbackTheme[]
+  opportunities ParticipationWindow[]
+  scopes GeographicScope[]
+  @@index([projectId, status])
+}
+model DecisionEvent {
+  id String @id
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  decisionId String
+  decision DecisionItem @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+  title String
+  date String
+  type String
+  description String
+  evidenceId String
+  evidence Evidence @relation(fields: [evidenceId], references: [id])
+  @@index([projectId, date])
+}
+model DocumentVersion {
+  id String @id
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  label String
+  date String
+  text String
+  changeType String
+  reason String
+  evidenceId String
+  evidence Evidence @relation(fields: [evidenceId], references: [id])
+  @@index([projectId, date])
+}
+model PublicFeedbackTheme {
+  id String @id
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  decisionId String
+  decision DecisionItem @relation(fields: [decisionId], references: [id])
+  topic String
+  summary String
+  response String
+  classification String
+  amendment String
+  date String
+  evidenceId String?
+  evidence Evidence? @relation(fields: [evidenceId], references: [id])
+  @@index([projectId, topic])
+}
+model ParticipationWindow {
+  id String @id
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  decisionId String
+  decision DecisionItem @relation(fields: [decisionId], references: [id])
+  method String
+  description String
+  opensAt String?
+  deadline String?
+  closedOn String?
+  meetingAt String?
+  timeZone String
+  url String?
+  verifiedAt String?
+  evidenceId String?
+  evidence Evidence? @relation(fields: [evidenceId], references: [id])
+  confirmed Boolean @default(false)
+  @@index([projectId])
+}
+model GeographicScope {
+  id String @id
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  decisionId String
+  decision DecisionItem @relation(fields: [decisionId], references: [id])
+  label String
+  kind String
+  geometry String
+  description String
+  evidenceId String
+  evidence Evidence @relation(fields: [evidenceId], references: [id])
+  @@index([projectId])
+}
+model ReviewRecord {
+  id String @id @default(cuid())
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  action String
+  revision Int
+  note String
+  createdAt DateTime @default(now())
+  @@index([projectId, createdAt])
+}
+model Publication {
+  projectId String @id
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  snapshot String
+  revision Int
+  publishedAt DateTime @default(now())
+}

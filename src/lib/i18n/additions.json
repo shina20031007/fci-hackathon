@@ -1,0 +1,178 @@
+{
+  "Independent information. Official sources.": {
+    "fr": "Information indépendante. Sources officielles.",
+    "zh-CN": "独立信息平台，关联官方来源。"
+  },
+  "Source-backed municipal cases. Unknown decisions, dates and boundaries are explicitly marked.": {
+    "fr": "Des dossiers municipaux étayés par des sources. Les décisions, dates et limites inconnues sont clairement signalées.",
+    "zh-CN": "市政案例均关联来源；尚未核实的决策、日期及范围均明确标注。"
+  },
+  "Real municipal projects": {
+    "fr": "Projets municipaux réels",
+    "zh-CN": "真实市政项目"
+  },
+  "Linked official sources": {
+    "fr": "Sources officielles liées",
+    "zh-CN": "关联官方来源"
+  },
+  "Three official projects, with evidence and verification limits.": {
+    "fr": "Trois projets officiels, avec leurs preuves et les limites de vérification.",
+    "zh-CN": "三个真实项目，附官方证据及核实范围说明。"
+  },
+  "Real projects are shown first. Fictional cases remain available for testing.": {
+    "fr": "Les projets réels sont affichés en premier. Les exemples fictifs restent disponibles pour les essais.",
+    "zh-CN": "默认显示真实项目，虚构案例保留用于测试。"
+  },
+  "Show fictional test cases instead of real projects": {
+    "fr": "Afficher les cas fictifs de test à la place des projets réels",
+    "zh-CN": "切换为虚构测试案例"
+  },
+  "Search an address in the map search box, or filter projects by municipality and topic.": {
+    "fr": "Recherchez une adresse sur la carte ou filtrez les projets par municipalité et sujet.",
+    "zh-CN": "在地图搜索框中查找地址，或按市镇和主题筛选项目。"
+  },
+  "Real and fictional records are shown separately. Project cards and geographic records provide a text alternative to the map.": {
+    "fr": "Les dossiers réels et fictifs sont séparés. Les fiches de projet et les descriptions géographiques offrent une alternative textuelle à la carte.",
+    "zh-CN": "真实记录与虚构记录分开展示。项目卡片及地理记录提供地图的文字替代信息。"
+  },
+  "Address queries go to the selected search provider. Selected locations are not saved. Map information is also available as text.": {
+    "fr": "Les recherches d’adresse sont envoyées au fournisseur sélectionné. Les lieux sélectionnés ne sont pas enregistrés. Les informations cartographiques sont aussi disponibles en texte.",
+    "zh-CN": "地址查询会发送给所选搜索服务。选择的位置不会保存，地图信息同时提供文字版本。"
+  },
+  "Three real municipal cases are linked to official sources. Three fictional Fairhaven cases are kept separately for testing. CivicTrace is independent and is not a government website.": {
+    "fr": "Trois dossiers municipaux réels sont liés à des sources officielles. Trois cas fictifs de Fairhaven sont conservés séparément pour les essais. CivicTrace est indépendant et n’est pas un site gouvernemental.",
+    "zh-CN": "三个真实市政案例均关联官方来源，三个虚构的 Fairhaven 案例另行保留用于测试。CivicTrace 是独立项目，并非政府网站。"
+  },
+  "Official administrative boundaries and licensed road centreline data provide context. A derived corridor is not an official project boundary. Regional address search uses licensed address points. No property-level impact model is provided.": {
+    "fr": "Les limites administratives officielles et les axes routiers sous licence donnent le contexte. Un corridor calculé n’est pas une limite officielle de projet. La recherche régionale utilise des points d’adresse sous licence. Aucun modèle d’impact à l’échelle des propriétés n’est fourni.",
+    "zh-CN": "官方行政边界与获授权的道路中心线用于说明地理背景。推导的道路走廊不等于官方项目边界。区域地址搜索使用获授权的地址点，不提供单个房产的影响模型。"
+  },
+  "The cited official source supports the statement. Imported research still requires independent review; this label does not mean government endorsement.": {
+    "fr": "La source officielle citée étaye l’énoncé. Les recherches importées nécessitent encore un examen indépendant; cette mention ne signifie pas une approbation gouvernementale.",
+    "zh-CN": "引用的官方来源支持该陈述。导入的研究仍需独立复核，此标签不表示政府背书。"
+  },
+  "No AI service processes documents in this application. Real-case summaries are source-backed research with explicit gaps. Fictional examples remain labeled. Search, comparison, mapping, and publishing use deterministic code.": {
+    "fr": "Aucun service d’IA ne traite les documents dans cette application. Les résumés des cas réels s’appuient sur des sources et signalent les lacunes. Les exemples fictifs sont identifiés. La recherche, la comparaison, la cartographie et la publication utilisent des règles programmées.",
+    "zh-CN": "应用内没有 AI 服务处理文件。真实案例摘要基于来源并明确标示缺失信息；虚构案例保留标识。搜索、比较、地图与发布使用确定的程序规则。"
+  },
+  "Public browsing needs no account. No analytics are included. Address searches and map requests are sent to the selected provider. Selected map points are not stored. Question drafts are saved only when requested, on the current device, and can be cleared.": {
+    "fr": "La consultation ne nécessite pas de compte et ne comporte pas d’analytique. Les recherches d’adresse et les requêtes cartographiques sont envoyées au fournisseur choisi. Les points sélectionnés ne sont pas conservés. Les brouillons ne sont enregistrés que sur demande, sur cet appareil, et peuvent être effacés.",
+    "zh-CN": "浏览无需账户，未加入行为分析。地址和地图请求会发送给所选服务，选择的地图点不会保存。问题草稿仅在你主动保存时保存在当前设备，并可清除。"
+  },
+  "Agricultural preservation": {
+    "fr": "Préservation agricole",
+    "zh-CN": "农业保护"
+  },
+  "The staff report identifies agricultural preservation and rural identity among the themes received.": {
+    "fr": "Le rapport du personnel mentionne la préservation agricole et l’identité rurale parmi les thèmes reçus.",
+    "zh-CN": "工作人员报告将农业保护和乡村特色列为收到的意见主题。"
+  },
+  "The example timeline currently shows:": {
+    "fr": "La chronologie fictive indique actuellement :",
+    "zh-CN": "示例时间线当前显示："
+  },
+  ". It is a demonstration, not an official invitation.": {
+    "fr": ". Il s’agit d’une démonstration et non d’une invitation officielle.",
+    "zh-CN": "。这是演示内容，并非官方参与邀请。"
+  },
+  "Official document library": {
+    "fr": "Bibliothèque de documents officiels",
+    "zh-CN": "官方文件库"
+  },
+  "Original documents remain in their published language. Unknown dates and unverified contents are explicitly marked.": {
+    "fr": "Les documents originaux conservent leur langue de publication. Les dates inconnues et les contenus non vérifiés sont signalés.",
+    "zh-CN": "原始文件保留发布语言，未知日期和未经核实的内容均明确标注。"
+  },
+  "Source date": {
+    "fr": "Date du document source",
+    "zh-CN": "来源日期"
+  },
+  "Study area": {
+    "fr": "Zone d’étude",
+    "zh-CN": "研究区域"
+  },
+  "Verification Required: final approval, adopted amounts and public participation deadline. The current official schedule leaves Final Budget Day to be confirmed.": {
+    "fr": "Vérification requise : approbation finale, montants adoptés et date limite de participation publique. Le calendrier officiel actuel indique que la journée du budget final reste à confirmer.",
+    "zh-CN": "需要核实：最终批准、通过的预算金额及公众参与截止日期。当前官方日程显示最终预算日尚待确认。"
+  },
+  "Current schedule takes precedence over an earlier February 23 target. Meeting dates and the councillor-motion deadline are not public submission deadlines. Publication date is not supplied.": {
+    "fr": "Le calendrier actuel prévaut sur la cible antérieure du 23 février. Les dates des réunions et la date limite des motions des membres du Conseil ne sont pas des échéances de participation publique. La date de publication n’est pas fournie.",
+    "zh-CN": "当前日程优先于早期的 2 月 23 日目标日期。会议日期和议员动议截止日期不等于公众提交意见的截止日期。未提供发布日期。"
+  },
+  "Document cover records the May 27 public meeting. Publication date is not separately stated. The comment deadline has day-level precision; no closing time is supplied.": {
+    "fr": "La couverture indique la réunion publique du 27 mai. La date de publication n’est pas précisée séparément. La date limite des commentaires est donnée au jour près, sans heure de clôture.",
+    "zh-CN": "文件封面标明 5 月 27 日公众会议，未单独注明发布日期。意见截止日期精确到日，未提供具体结束时间。"
+  },
+  "Linked by the official June 18, 2026 council news summary. Retrieval returned HTTP 403; no claim relies on this document.": {
+    "fr": "Document lié au compte rendu officiel du Conseil du 18 juin 2026. La récupération a renvoyé HTTP 403; aucune affirmation ne s’appuie sur ce document.",
+    "zh-CN": "该链接来自 2026 年 6 月 18 日官方议会新闻摘要。读取返回 HTTP 403，本网站未使用该文件支持任何陈述。"
+  },
+  "Derived municipal coverage from nine licensed official polygons, including Baden and New Hamburg. This is policy context, not parcel designations, a legal survey or an impact area.": {
+    "fr": "Couverture municipale dérivée de neuf polygones officiels sous licence, incluant Baden et New Hamburg. Il s’agit du contexte de la politique, et non de désignations de parcelles, d’un levé légal ou d’une zone d’impact.",
+    "zh-CN": "由九个获授权的官方多边形推导出市镇覆盖范围，包含 Baden 和 New Hamburg。该范围用于说明政策背景，并非地块用途划分、法定测量结果或影响区域。"
+  },
+  "Exact union of Cities and Towns polygons where Municipality=Wilmot (OBJECTIDs 6, 23–30). The township record alone excludes named settlements. Contains information provided by the Regional Municipality of Waterloo under licence. Item modification date is not a survey date.": {
+    "fr": "Union exacte des polygones Cities and Towns où Municipality=Wilmot (OBJECTID 6 et 23–30). Le polygone du canton seul exclut les localités nommées. Contient des renseignements fournis sous licence par la Regional Municipality of Waterloo. La date de modification de l’élément n’est pas une date d’arpentage.",
+    "zh-CN": "精确合并 Cities and Towns 数据中 Municipality=Wilmot 的多边形（OBJECTID 6、23–30）。单独的乡镇记录不包含已单列的聚落。数据由 Regional Municipality of Waterloo 授权提供，条目修改日期不等于测量日期。"
+  },
+  "Confirmed closing date (when no closing time is published)": {
+    "fr": "Date de clôture confirmée (si aucune heure de clôture n’est publiée)",
+    "zh-CN": "已核实的截止日期（官方未公布具体时间时）"
+  },
+  "Admin Portal": {
+    "fr": "Portail d’administration",
+    "zh-CN": "管理门户"
+  },
+  "Return to Public Portal": {
+    "fr": "Retour au portail public",
+    "zh-CN": "返回公众门户"
+  },
+  "ADMIN WORKSPACE": {
+    "fr": "ESPACE D’ADMINISTRATION",
+    "zh-CN": "管理工作区"
+  },
+  "A starting point for the existing municipal review workspace.": {
+    "fr": "Un point d’entrée vers l’espace municipal de révision existant.",
+    "zh-CN": "现有市政审核工作区的入口。"
+  },
+  "Phase 1 · Read-only foundation": {
+    "fr": "Phase 1 · Base en lecture seule",
+    "zh-CN": "第一阶段 · 只读基础界面"
+  },
+  "Navigation only. No administrative data is shown here.": {
+    "fr": "Navigation uniquement. Aucune donnée administrative n’est affichée ici.",
+    "zh-CN": "本页仅提供导航，不显示管理数据。"
+  },
+  "This page does not upload files, parse documents with AI, or publish content. It does not provide authentication or grant management permissions.": {
+    "fr": "Cette page ne permet ni de téléverser des fichiers, ni d’analyser des documents avec l’IA, ni de publier du contenu. Elle ne fournit pas d’authentification et n’accorde aucun droit de gestion.",
+    "zh-CN": "本页不上传文件、不使用 AI 解析文件，也不发布内容。本页不提供身份认证或授予管理权限。"
+  },
+  "Existing workspaces": {
+    "fr": "Espaces de travail existants",
+    "zh-CN": "现有工作区"
+  },
+  "Continue using the established CivicTrace workflows.": {
+    "fr": "Continuez à utiliser les processus existants de CivicTrace.",
+    "zh-CN": "继续使用 CivicTrace 现有工作流程。"
+  },
+  "Project editing, evidence review, draft previews and publication remain in Municipal Studio. Admin Portal does not duplicate them.": {
+    "fr": "La modification des projets, la révision des preuves, l’aperçu des brouillons et la publication restent dans le Studio municipal. Le portail d’administration ne les reproduit pas.",
+    "zh-CN": "项目编辑、证据审核、草稿预览和发布仍由市政工作室负责，管理门户不重复实现这些功能。"
+  },
+  "Studio retains its existing local-only restrictions and must be enabled in the environment. This link does not change access.": {
+    "fr": "Le Studio conserve ses restrictions d’accès local et doit être activé dans l’environnement. Ce lien ne modifie pas les droits d’accès.",
+    "zh-CN": "市政工作室保留现有的本地访问限制，且需在环境配置中启用。此链接不会改变访问权限。"
+  },
+  "Open Municipal Studio": {
+    "fr": "Ouvrir le Studio municipal",
+    "zh-CN": "打开市政工作室"
+  },
+  "Public Portal": {
+    "fr": "Portail public",
+    "zh-CN": "公众门户"
+  },
+  "Browse published municipal cases, official evidence, maps and participation information in the resident portal.": {
+    "fr": "Consultez les dossiers municipaux publiés, les preuves officielles, les cartes et les renseignements sur la participation dans le portail public.",
+    "zh-CN": "在公众门户浏览已发布的市政案例、官方证据、地图及公众参与信息。"
+  }
+}
