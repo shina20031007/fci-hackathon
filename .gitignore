@@ -19,3 +19,6 @@ build/
 .test-data/
 
 .next-production/
+
+# Generated from the canonical schema during cloud builds.
+prisma/postgresql/schema.prisma

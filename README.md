@@ -112,6 +112,8 @@ Admin Portal publications are stored in the local SQLite `Publication.snapshot` 
 
 After pulling these files, run `npm run db:setup` and restart the app. On Windows PowerShell use `npm.cmd run db:setup`. A fresh clone also needs `npm ci` and a local `.env` copied from `.env.example` before setup. For future Admin Portal publications, explicitly review and add the approved `Publication.snapshot` and `publishedAt` to the tracked JSON file, then commit that file. Updating an already seeded project requires a separately reviewed synchronization change because the idempotent seed leaves existing IDs untouched.
 
+Vercel uses a persistent PostgreSQL `DATABASE_URL`, scoped to its deployment environment. `vercel.json` runs `npm run build`, which generates the PostgreSQL schema from the canonical models, applies the separate migrations in `prisma/postgresql/migrations`, and inserts missing reviewed public snapshots only. Local development retains SQLite and its existing migrations. Keep production credentials out of local development and preview environments; previews need their own database. Add a PostgreSQL migration whenever models change. Staff writes remain disabled remotely unless explicitly configured through the existing authentication settings. No OpenAI credentials are needed for public browsing.
+
 - `STUDIO_ENABLED=true` enables the local editor. Set it to `false` for read-only browsing.
 - `NEXT_TELEMETRY_DISABLED=1` disables Next.js telemetry in the supplied environment template.
 - No AI keys, paid map credentials, or third-party authentication are required.
