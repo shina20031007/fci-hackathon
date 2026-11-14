@@ -236,13 +236,6 @@ test("integrated navigation opens live routes, sources and browser history", asy
     .click();
   await expect(page).toHaveURL(/\/projects\/maryhill-road$/);
   const nav = page.getByRole("navigation", { name: "Project modules" });
-  await nav
-    .getByRole("button", { name: "Decisions & evidence", exact: true })
-    .click();
-  await nav
-    .getByRole("link", { name: "Documents, amendments & sources" })
-    .click();
-  await expect(page).toHaveURL(/maryhill-road#project-sources$/);
   await expect(page.locator("#project-sources")).toBeVisible();
   await page
     .locator("#project-sources")
@@ -250,8 +243,16 @@ test("integrated navigation opens live routes, sources and browser history", asy
     .click();
   await expect(page).toHaveURL(/maryhill-road\/decisions#recorded-versions$/);
   await expect(page.locator("#recorded-versions")).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "Breadcrumb" })
+    .getByRole("link", { name: "Maryhill Road" })
+    .click();
+  await page
+    .locator(".module-grid")
+    .getByRole("link", { name: /Impact Explorer/ })
+    .click();
+  await expect(page).toHaveURL(/\/maryhill-road\/impact$/);
   for (const [label, module] of [
-    ["Map & impact", "impact"],
     ["Public voice", "public-voice"],
     ["How to participate", "participation"],
   ]) {

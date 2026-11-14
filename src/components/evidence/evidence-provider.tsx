@@ -6,7 +6,7 @@ import { ExternalLink, FileText, X, Quote, ShieldCheck } from "lucide-react";
 import type { CivicProject } from "@/lib/validation/project";
 import { LocalizedDate } from "@/lib/i18n/provider";
 import { Badge } from "@/components/ui/shared";
-const EvidenceContext = createContext<(id: string) => void>(() => {});
+const EvidenceContext = createContext<(ids: string[]) => void>(() => {});
 export function evidenceSourceUrl(url: string, section: string) {
   const source = new URL(url);
   const page = section.match(/^Page\s+([1-9]\d*)\b/i)?.[1];
@@ -18,14 +18,17 @@ export function EvidenceButton({
   id,
   children = "View evidence",
 }: {
-  id: string;
+  id: string | string[];
   children?: React.ReactNode;
 }) {
   const show = useContext(EvidenceContext);
   return (
     <Localized>
       {
-        <button className="evidence-button" onClick={() => show(id)}>
+        <button
+          className="evidence-button"
+          onClick={() => show(Array.isArray(id) ? id : [id])}
+        >
           <FileText size={14} />
           {children}
         </button>
@@ -42,10 +45,13 @@ export function EvidenceProvider({
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [choices, setChoices] = useState<string[]>([]);
   const evidence = project.evidence.find((e) => e.id === selected);
   const source = project.sources.find((s) => s.id === evidence?.sourceId);
-  function show(id: string) {
-    setSelected(id);
+  function show(ids: string[]) {
+    const uniqueIds = [...new Set(ids.filter(Boolean))];
+    setChoices(uniqueIds);
+    setSelected(uniqueIds[0] ?? null);
     ref.current?.showModal();
   }
   return (
@@ -73,6 +79,36 @@ export function EvidenceProvider({
                 </button>
               </div>
               <h2 id="evidence-title">Supporting evidence</h2>
+              {choices.length > 1 && (
+                <div
+                  className="evidence-choices"
+                  role="group"
+                  aria-label="Choose evidence"
+                >
+                  {choices.map((id, index) => {
+                    const item = project.evidence.find((e) => e.id === id);
+                    const document = project.sources.find(
+                      (s) => s.id === item?.sourceId,
+                    );
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        aria-pressed={selected === id}
+                        onClick={() => setSelected(id)}
+                      >
+                        <span aria-hidden="true">{index + 1}</span>
+                        <span translate="no">
+                          <strong>
+                            {document?.title ?? "Supporting evidence"}
+                          </strong>
+                          <small>{item?.section ?? id}</small>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
               {evidence && source ? (
                 <>
                   <Badge tone={source.synthetic ? "amber" : "teal"}>

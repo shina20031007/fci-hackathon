@@ -919,5 +919,8 @@
   "Draft your message": "Rédigez votre message",
   "Write your questions": "Rédigez vos questions",
   "Choose a project to see its Public Voice page.": "Choisissez un projet pour consulter sa page Voix du public.",
-  "View Public Voice": "Voir la voix du public"
+  "View Public Voice": "Voir la voix du public",
+  "Choose evidence": "Choisir une preuve",
+  "No verified information recorded.": "Aucune information vérifiée n’est consignée.",
+  "No adopted decision is documented in the extracted information.": "Aucune décision adoptée n’est documentée dans les informations extraites."
 }

@@ -919,5 +919,8 @@
   "Draft your message": "撰写意见草稿",
   "Write your questions": "写下你的问题",
   "Choose a project to see its Public Voice page.": "选择一个项目，查看其居民发声页面。",
-  "View Public Voice": "查看居民发声"
+  "View Public Voice": "查看居民发声",
+  "Choose evidence": "选择证据",
+  "No verified information recorded.": "暂无已核实的信息。",
+  "No adopted decision is documented in the extracted information.": "提取的信息中未记载已通过的决定。"
 }

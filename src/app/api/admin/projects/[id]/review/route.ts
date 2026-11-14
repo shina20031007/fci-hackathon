@@ -20,6 +20,44 @@ export async function POST(
       const row = await tx.project.findUniqueOrThrow({ where: { id } });
       if (row.revision !== project.revision || row.deletedAt || row.archivedAt)
         throw new Error("Project changed or is inactive.");
+      if (body.verified === true && field === "evidence") {
+        if (
+          project.evidence.some(
+            (e) =>
+              !project.sources.some(
+                (s) =>
+                  s.id === e.sourceId &&
+                  (project.synthetic ? s.synthetic : !s.synthetic && !!s.url),
+              ),
+          )
+        )
+          throw new Error(
+            "Add an official source URL for each evidence item before verifying.",
+          );
+        const verifiedAt = new Date().toISOString();
+        const state = project.synthetic
+          ? "Requires Verification"
+          : "Officially Confirmed";
+        await tx.evidence.updateMany({
+          where: { projectId: id },
+          data: { state, verifiedAt },
+        });
+        project.evidence = project.evidence.map((e) => ({
+          ...e,
+          state,
+          verifiedAt,
+        }));
+      }
+      if (body.verified === true && field === "decisions") {
+        await tx.decisionItem.updateMany({
+          where: { projectId: id },
+          data: { reviewState: "Verified" },
+        });
+        project.decisions = project.decisions.map((d) => ({
+          ...d,
+          reviewState: "Verified",
+        }));
+      }
       if (body.verified === true)
         await tx.fieldReview.upsert({
           where: { projectId_field: { projectId: id, field } },

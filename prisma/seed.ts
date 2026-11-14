@@ -30,13 +30,13 @@ async function main() {
       throw new Error(`Invalid published seed record: ${record.projectId}`);
     seen.add(record.projectId);
   }
-  for (const project of [...fixtureProjects, ...officialProjects])
-    await seedProject(project);
+  for (const project of fixtureProjects) await seedProject(project);
   for (const record of publishedSeed)
     await seedProject(record.snapshot, db, {
       publishedAt: new Date(record.publishedAt),
       agendaItem: record.agendaItem,
     });
+  for (const project of officialProjects) await seedProject(project);
   console.info("Seed complete. Existing projects were preserved.");
 }
 main()

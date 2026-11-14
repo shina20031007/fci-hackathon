@@ -1,13 +1,15 @@
 "use client";
 import Link from "next/link";
+import { DocumentMap } from "@/components/maps/document-map";
+import { documentDecision } from "./project-answers";
 import { Localized, LocalizedDate } from "@/lib/i18n/provider";
 import type { CivicProject } from "@/lib/validation/project";
-import { EvidenceButton } from "@/components/evidence/evidence-provider";
+import { ProjectAnswerCards } from "./project-answer-cards";
 import { CorridorProgress } from "@/features/rapidto/corridor-progress";
 import { ProjectMap } from "@/components/maps/project-map";
 import styles from "@/features/rapidto/rapidto.module.css";
 
-/** Housing records use the same reviewed stages and evidence as the staff preview. */
+/** Shared document dashboard for housing and staff previews across categories. */
 export function HousingOverview({
   project,
   preview = false,
@@ -15,12 +17,6 @@ export function HousingOverview({
   project: CivicProject;
   preview?: boolean;
 }) {
-  const sections = ["proposal", "decision", "scope", "voice"].flatMap(
-    (suffix) =>
-      project.decisions.filter((decision) =>
-        decision.id.endsWith(`-${suffix}`),
-      ),
-  );
   return (
     <Localized>
       <div className={styles.page}>
@@ -29,33 +25,24 @@ export function HousingOverview({
           preview={preview}
           variant="project"
         />
-        <div className={styles.answers}>
-          {sections.map((decision) => (
-            <section className="panel" key={decision.id}>
-              <h2>{decision.title}</h2>
-              <p>{decision.explanation}</p>
-              {decision.conditions && <p>{decision.conditions}</p>}
-              {decision.uncertainty && <p>{decision.uncertainty}</p>}
-              {decision.evidenceIds.map((id) => (
-                <EvidenceButton key={id} id={id} />
-              ))}
+        <ProjectAnswerCards project={project} />
+        {documentDecision(project) ? (
+          <DocumentMap project={project} preview={preview} />
+        ) : (
+          project.scopes.length > 0 && (
+            <section className="panel">
+              <h2>Project location</h2>
+              <ProjectMap
+                projects={[project]}
+                selectedId={project.id}
+                detailed
+                preview={preview}
+              />
             </section>
-          ))}
-        </div>
-        {project.scopes.length > 0 && (
-          <section className="panel">
-            <h2>Project location</h2>
-            <ProjectMap
-              projects={[project]}
-              selectedId={project.id}
-              city="Toronto"
-              detailed
-              preview={preview}
-            />
-          </section>
+          )
         )}
-        <section className="panel">
-          <h2>Sources &amp; Evidence</h2>
+        <details className={`panel ${styles.sourcesDisclosure}`}>
+          <summary>Sources &amp; Evidence</summary>
           <ul>
             {project.sources.map((source) => (
               <li key={source.id}>
@@ -85,7 +72,7 @@ export function HousingOverview({
           >
             {preview ? "Back to draft editor" : "How to participate"}
           </Link>
-        </section>
+        </details>
       </div>
     </Localized>
   );

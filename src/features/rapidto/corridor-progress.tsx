@@ -96,7 +96,9 @@ export function CorridorProgress({
   const nextEvent = events.find((e) => e.status === "Planned");
   const nextText =
     variant === "project"
-      ? (next?.explanation ?? "No verified next action recorded.")
+      ? (next?.explanation ??
+        nextEvent?.description ??
+        "No verified next action recorded.")
       : nextEvent
         ? `${t(labels[nextEvent.title] ?? nextEvent.title)}${periodLabel(nextEvent.description) ? " · " + t(periodLabel(nextEvent.description)!) : ""}`
         : current?.title === "Design refinement"
@@ -165,7 +167,7 @@ export function CorridorProgress({
               >
                 <EvidenceButton id={event.evidenceId}>
                   <span key="dot" className={styles.stageDot}>
-                    {state === "done" ? (
+                    {state === "done" || state === "draftDone" ? (
                       <Check size={17} aria-hidden="true" />
                     ) : (
                       <Circle size={active ? 10 : 7} aria-hidden="true" />

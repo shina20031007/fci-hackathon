@@ -20,6 +20,7 @@ export const fieldNames = [
   "policyScope",
   "participationMethod",
   "participationDeadline",
+  "residentComments",
   "publicMeeting",
 ] as const;
 export const extractionSchema = z.object({
@@ -52,6 +53,17 @@ export const extractionSchema = z.object({
       quote: z.string(),
     }),
   ),
+  // Optional for older saved responses; required for new model requests.
+  locations: z
+    .array(
+      z.object({
+        label: z.string(),
+        kind: z.enum(["site", "corridor", "area", "citywide"]),
+        page: z.number().int().positive(),
+        quote: z.string(),
+      }),
+    )
+    .optional(),
   warnings: z.array(z.string()),
 });
 export type Extraction = z.infer<typeof extractionSchema>;
@@ -92,6 +104,7 @@ export function checkQuotes(extraction: Extraction, pages: PageText[]) {
   const rows = [
     ...extraction.fields.filter((f) => f.value !== null),
     ...extraction.events,
+    ...(extraction.locations ?? []),
   ];
   for (const row of rows) {
     const match = matchCitation(row.quote, row.page, pages);
@@ -101,7 +114,12 @@ export function checkQuotes(extraction: Extraction, pages: PageText[]) {
       );
   }
   const names = extraction.fields.map((f) => f.name);
-  if (fieldNames.some((name) => !names.includes(name)))
+  // Older saved analyses predate the resident-comments field.
+  if (
+    fieldNames.some(
+      (name) => name !== "residentComments" && !names.includes(name),
+    )
+  )
     throw new Error("Missing extraction fields. Review the analysis manually.");
   if (new Set(names).size !== names.length)
     throw new Error("Duplicate extraction fields.");
@@ -144,6 +162,19 @@ export function groundExtraction(
     event.page = page;
     return true;
   });
+  if (result.locations) {
+    result.locations = result.locations.filter((location) => {
+      const page = locate(location.quote, location.page, location.label);
+      if (page === null) {
+        result.warnings.push(
+          `Location withheld: ${location.label}. Its quotation could not be matched.`,
+        );
+        return false;
+      }
+      location.page = page;
+      return true;
+    });
+  }
   checkQuotes(result, pages);
   return result;
 }

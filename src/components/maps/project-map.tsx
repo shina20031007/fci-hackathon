@@ -13,6 +13,7 @@ type Props = {
   focusRequest?: number;
   onSelect?: (id: string) => void;
   detailed?: boolean;
+  showSelectionSummary?: boolean;
   city?: "Toronto" | "Waterloo";
   preview?: boolean;
   searchLocation?: [number, number] | null;
@@ -26,6 +27,7 @@ export function ProjectMap({
   city = "Waterloo",
   preview = false,
   searchLocation,
+  showSelectionSummary = true,
 }: Props) {
   const toronto =
     city === "Toronto" ||
@@ -346,7 +348,7 @@ export function ProjectMap({
             {location[1].toFixed(5)}
           </p>
         )}
-        {chosen && (
+        {showSelectionSummary && chosen && chosen.category !== "Housing" && (
           <div className="map-selection">
             <strong>{chosen.title}</strong>
             <p>

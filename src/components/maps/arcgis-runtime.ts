@@ -338,11 +338,13 @@ export async function createCivicMap(
                     const link = document.createElement("a");
                     link.href = project.id.startsWith("rapidto-")
                       ? `/projects/toronto-2024-ex11-8/corridors/${project.id.slice(8)}${handlers.preview ? "?preview=1" : ""}`
-                      : `/projects/${project.id}/decisions`;
+                      : handlers.preview
+                        ? `/studio/${project.id}/preview`
+                        : `/projects/${project.id}`;
                     link.textContent = t(
                       project.id.startsWith("rapidto-")
                         ? "View corridor"
-                        : "Decision DNA",
+                        : "Project overview",
                     );
                     if (scope.id.includes("-ttc-")) {
                       const number = scope.label.match(/^TTC (\d+)/)?.[1];

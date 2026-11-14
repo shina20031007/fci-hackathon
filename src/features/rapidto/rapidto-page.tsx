@@ -1,15 +1,30 @@
 "use client";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Localized, LocalizedDate } from "@/lib/i18n/provider";
 import {
   EvidenceProvider,
   EvidenceButton,
 } from "@/components/evidence/evidence-provider";
-import { CorridorProgress } from "./corridor-progress";
+import { CorridorProgress, stageState } from "./corridor-progress";
+import { Badge } from "@/components/ui/shared";
 import { ProjectMap } from "@/components/maps/project-map";
 import type { CivicProject } from "@/lib/validation/project";
 import { corridors, rapidtoPath } from "./config";
 import styles from "./rapidto.module.css";
+import { ProjectAnswerCards } from "@/features/decisions/project-answer-cards";
+
+function subscribeSection(callback: () => void) {
+  window.addEventListener("hashchange", callback);
+  window.addEventListener("popstate", callback);
+  return () => {
+    window.removeEventListener("hashchange", callback);
+    window.removeEventListener("popstate", callback);
+  };
+}
+const sectionSnapshot = () => window.location.hash;
+const serverSectionSnapshot = () => "";
+
 export function RapidTOPage({
   project,
   available = [],
@@ -21,30 +36,37 @@ export function RapidTOPage({
   corridor?: string;
   preview?: boolean;
 }) {
+  const hash = useSyncExternalStore(
+    subscribeSection,
+    sectionSnapshot,
+    serverSectionSnapshot,
+  );
+  const activeSection = ["#public-voice", "#participation"].includes(hash)
+    ? hash
+    : "#timeline";
   const suffix = preview ? "?preview=1" : "";
-  const order = [
-    "proposal",
-    "scope",
-    "participation",
-    "decision",
-    "changes",
-    "voice",
-    "response",
-    "next",
-  ];
-  const sections = [...project.decisions].sort((a, b) => {
-    const rank = (id: string) => {
-      const i = order.findIndex((k) => id.endsWith("-" + k));
-      return i < 0 ? 99 : i;
-    };
-    return rank(a.id) - rank(b.id);
-  });
+  const currentStage = project.events.find(
+    (event) => stageState(project, event, false) === "current",
+  )?.title;
   return (
     <Localized>
       <EvidenceProvider project={project}>
-        <div className={`page ${styles.page}`}>
-          <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
-            <Link href="/explore">Explore Decisions</Link>
+        <div
+          className={`page ${styles.page} ${corridor ? styles.corridorPage : ""}`}
+        >
+          <nav
+            aria-label="Breadcrumb"
+            className={corridor ? "civic-breadcrumb" : styles.breadcrumb}
+          >
+            {corridor && (
+              <>
+                <Link href="/">Home</Link>
+                <span aria-hidden="true">/</span>
+              </>
+            )}
+            <Link href="/explore">
+              {corridor ? "All projects" : "Explore Decisions"}
+            </Link>
             <span aria-hidden="true">/</span>
             {corridor ? (
               <>
@@ -71,16 +93,48 @@ export function RapidTOPage({
               </Link>
             </aside>
           )}
-          <header className={styles.header}>
-            <p>Toronto · Transportation</p>
-            <h1 translate="no">{corridor ? project.title : "RapidTO"}</h1>
-            <p className="lead">{project.summary}</p>
-            <EvidenceButton id={project.summaryEvidenceId} />
-            <p className="small">
-              Last verified: <LocalizedDate value={project.verifiedAt} />
-              {!project.verifiedAt && " · Awaiting staff verification"}
-            </p>
-          </header>
+          {corridor ? (
+            <header className="project-heading">
+              <p className="eyebrow">
+                {project.municipality} <span> / </span> {project.category}
+              </p>
+              <h1 translate="no">{project.title}</h1>
+              <div className="tags">
+                <Badge tone="blue">{currentStage ?? project.status}</Badge>
+                <span className="small muted">
+                  Last verified <LocalizedDate value={project.verifiedAt} />
+                </span>
+              </div>
+            </header>
+          ) : (
+            <header className={styles.header}>
+              <p>Toronto · Transportation</p>
+              <h1 translate="no">{corridor ? project.title : "RapidTO"}</h1>
+              <p className="lead">{project.summary}</p>
+              <EvidenceButton id={project.summaryEvidenceId} />
+              <p className="small">
+                Last verified: <LocalizedDate value={project.verifiedAt} />
+                {!project.verifiedAt && " · Awaiting staff verification"}
+              </p>
+            </header>
+          )}
+          {corridor && (
+            <nav className={styles.anchors} aria-label="Corridor sections">
+              {[
+                ["#timeline", "Project overview"],
+                ["#public-voice", "Public voice"],
+                ["#participation", "How to participate"],
+              ].map(([href, label]) => (
+                <a
+                  key={href}
+                  href={href}
+                  aria-current={activeSection === href ? "location" : undefined}
+                >
+                  {label}
+                </a>
+              ))}
+            </nav>
+          )}
           <nav
             id="corridors"
             className={styles.corridors}
@@ -143,20 +197,7 @@ export function RapidTOPage({
                   </p>
                 )}
               </section>
-              <section className="panel">
-                <h2>Plan decisions</h2>
-                {sections.map((d) => (
-                  <article key={d.id}>
-                    <h3>{d.title}</h3>
-                    <p>{d.explanation}</p>
-                    {d.conditions && <p>{d.conditions}</p>}
-                    {d.uncertainty && <p>{d.uncertainty}</p>}
-                    {d.evidenceIds.map((id) => (
-                      <EvidenceButton key={id} id={id} />
-                    ))}
-                  </article>
-                ))}
-              </section>
+              <ProjectAnswerCards project={project} />
             </>
           )}
           {corridor && (
@@ -164,31 +205,9 @@ export function RapidTOPage({
               <div id="timeline">
                 <CorridorProgress project={project} preview={preview} />
               </div>
-              <details className={styles.moreDetails}>
-                <summary>Project details</summary>
-                <div className={styles.answers}>
-                  {sections.slice(0, 4).map((d) => (
-                    <section className="panel" key={d.id}>
-                      <h2>{d.title}</h2>
-                      <p>{d.explanation}</p>
-                      {d.conditions && <p>{d.conditions}</p>}
-                      {d.uncertainty && <p>{d.uncertainty}</p>}
-                      {d.evidenceIds.map((id) => (
-                        <EvidenceButton key={id} id={id} />
-                      ))}
-                    </section>
-                  ))}
-                </div>
-              </details>
-              <nav className={styles.anchors} aria-label="Corridor sections">
-                <a href="#corridor-map">Map &amp; location</a>
-                <a href="#timeline">Decision Timeline</a>
-                <a href="#changes">What Changed?</a>
-                <a href="#public-voice">Public Voice</a>
-                <a href="#sources">Sources &amp; Evidence</a>
-              </nav>
-              <section id="corridor-map">
-                <h2>Does It Affect Me?</h2>
+              <ProjectAnswerCards project={project} includeSummary />
+              <section className="panel" id="corridor-map">
+                <h2>Project location</h2>
                 <p>{project.neighbourhood}</p>
                 <p>
                   Reference Corridor: road centreline context, not an exact
@@ -197,6 +216,7 @@ export function RapidTOPage({
                 <ProjectMap
                   projects={[project]}
                   selectedId={project.id}
+                  showSelectionSummary={false}
                   detailed
                   city="Toronto"
                   preview={preview}
@@ -208,60 +228,9 @@ export function RapidTOPage({
                   </p>
                 )}
               </section>
-              <section id="changes" className={styles.moreDetails}>
-                <h2>What Changed?</h2>
-                <div className={styles.details}>
-                  {sections
-                    .filter(
-                      (d) =>
-                        d.id.endsWith("-changes") || d.id.endsWith("-next"),
-                    )
-                    .map((d) => (
-                      <section className="panel" key={d.id}>
-                        <h2>{d.title}</h2>
-                        <p>{d.explanation}</p>
-                        {d.conditions && <p>{d.conditions}</p>}
-                        {d.uncertainty && <p>{d.uncertainty}</p>}
-                        {d.evidenceIds.map((id) => (
-                          <EvidenceButton key={id} id={id} />
-                        ))}
-                      </section>
-                    ))}
-                </div>
-              </section>
-              <section id="public-voice" className={styles.moreDetails}>
-                <h2>Public Voice</h2>
-                {sections.some(
-                  (d) => d.id.endsWith("-voice") || d.id.endsWith("-response"),
-                ) ? (
-                  <div className={styles.details}>
-                    {sections
-                      .filter(
-                        (d) =>
-                          d.id.endsWith("-voice") || d.id.endsWith("-response"),
-                      )
-                      .map((d) => (
-                        <section className="panel" key={d.id}>
-                          <h3>{d.title}</h3>
-                          <p>{d.explanation}</p>
-                          {d.conditions && <p>{d.conditions}</p>}
-                          {d.uncertainty && <p>{d.uncertainty}</p>}
-                          {d.evidenceIds.map((id) => (
-                            <EvidenceButton key={id} id={id} />
-                          ))}
-                        </section>
-                      ))}
-                  </div>
-                ) : (
-                  <p>
-                    No reviewed summary of residents’ comments is available
-                    here.
-                  </p>
-                )}
-              </section>
             </>
           )}
-          <details id="sources" className="panel">
+          <details id="sources" className={`panel ${styles.sourcesDisclosure}`}>
             <summary>Sources &amp; Evidence</summary>
             <p>Official documents remain in their original language.</p>
             {project.sources.map((s) => (

@@ -1,4 +1,6 @@
 "use client";
+import { HousingOverview } from "@/features/decisions/housing-overview";
+import { publicationIssues } from "@/lib/evidence/policy";
 import { CitationReview } from "./citation-review";
 import { useState, useRef, useTransition } from "react";
 import Link from "next/link";
@@ -79,6 +81,8 @@ type Props = {
   }[];
 };
 const fields = [
+  "evidence",
+  "decisions",
   "title",
   "municipality",
   "category",
@@ -87,10 +91,8 @@ const fields = [
   "summary",
   "rationale",
   "status",
-  "decisions",
   "events",
   "sources",
-  "evidence",
   "opportunities",
   "scopes",
 ] as const;
@@ -98,6 +100,7 @@ export function AdminPortal(props: Props) {
   const router = useRouter();
   const [working, setBusy] = useState(false),
     [message, setMessage] = useState(""),
+    [selectedFileName, setSelectedFileName] = useState(""),
     [consent, setConsent] = useState(false),
     [draft, setDraft] = useState(props.project),
     [section, setSection] = useState(props.initialSection ?? "Overview"),
@@ -150,6 +153,14 @@ export function AdminPortal(props: Props) {
       <Link className="button secondary" href={`/admin?project=${project.id}`}>
         Edit
       </Link>
+      {!project.deletedAt && !project.archivedAt && (
+        <Link
+          className="button secondary"
+          href={`/admin?project=${project.id}&section=Review%20%26%20Verification`}
+        >
+          Review & publish
+        </Link>
+      )}
       {project.deletedAt || project.archivedAt ? (
         <button
           className="button secondary"
@@ -305,7 +316,27 @@ export function AdminPortal(props: Props) {
                   <p>
                     Stage: {draft.status} · Review: {draft.reviewStatus}
                   </p>
-                  <DecisionTimeline project={draft} />
+                  {props.imported?.extraction && (
+                    <button
+                      className="button secondary"
+                      disabled={busy}
+                      onClick={() =>
+                        run(async () => {
+                          const data = await request(
+                            `/api/admin/documents/${props.imported!.id}/dashboard`,
+                            { revision: draft.revision },
+                          );
+                          setDraft(data.project);
+                          setMessage(
+                            "Dashboard updated from saved analysis. Review the updated draft before publishing.",
+                          );
+                        })
+                      }
+                    >
+                      Update dashboard from saved analysis
+                    </button>
+                  )}
+                  <HousingOverview project={draft} preview />
                 </>
               )}
               {section === "Timeline" && (
@@ -357,6 +388,30 @@ export function AdminPortal(props: Props) {
               {section === "Review & Verification" && (
                 <>
                   <h2>Review & Verify</h2>
+                  <section className="panel" aria-label="Publication checklist">
+                    <h3>Publication checklist</h3>
+                    <p>
+                      Review evidence first, then decision claims, then the
+                      remaining fields. Verify on evidence confirms that every
+                      cited passage supports its claim; Verify on decisions
+                      confirms the recorded interpretations.
+                    </p>
+                    <ul>
+                      {publicationIssues(draft).map((issue) => (
+                        <li key={issue}>{issue}</li>
+                      ))}
+                    </ul>
+                    <p>
+                      {props.checks.filter((c) => c.valid).length} /{" "}
+                      {fields.length} fields reviewed. After review: Submit for
+                      review → Approve for Publication → Publish.
+                    </p>
+                    {draft.reviewStatus === "Published" && (
+                      <Link href={`/projects/${draft.id}`}>
+                        Open published page
+                      </Link>
+                    )}
+                  </section>
                   <p>
                     {props.checks.filter((c) => c.valid).length} of{" "}
                     {fields.length} critical fields verified. Editing source
@@ -414,7 +469,9 @@ export function AdminPortal(props: Props) {
                                   ].includes(field) ||
                                   e.id.endsWith("-" + field) ||
                                   (field === "neighbourhood" &&
-                                    e.id.endsWith("-location")) ||
+                                    (e.id.endsWith("-location") ||
+                                      e.id.includes("-location-") ||
+                                      e.id.endsWith("-policyScope"))) ||
                                   (field === "authority" &&
                                     e.id.endsWith("-department")) ||
                                   (field === "rationale" &&
@@ -550,9 +607,9 @@ export function AdminPortal(props: Props) {
                     );
                   })}
                   <p>
-                    Evidence and decision review states must also be verified in
-                    Municipal Studio. Verification confirms the source supports
-                    the statement; it is not government endorsement.
+                    Verify evidence and decisions above after inspecting their
+                    source passages. Verification confirms source support; it is
+                    not government endorsement.
                   </p>
                   <div className="admin-actions">
                     {(["review", "verify", "publish"] as const).map(
@@ -724,14 +781,27 @@ export function AdminPortal(props: Props) {
               });
             }}
           >
-            <label>
+            <label className="admin-file-upload">
               Document (maximum 3 MB)
-              <input
-                type="file"
-                name="file"
-                accept=".pdf,.csv,.xlsx,.json,.xml"
-                required
-              />
+              <span className="admin-file-upload-control">
+                <input
+                  type="file"
+                  name="file"
+                  accept=".pdf,.csv,.xlsx,.json,.xml"
+                  required
+                  onChange={(event) =>
+                    setSelectedFileName(
+                      event.currentTarget.files?.[0]?.name ?? "",
+                    )
+                  }
+                />
+                <span className="admin-file-upload-button" aria-hidden="true">
+                  Choose file
+                </span>
+                <span className="admin-file-upload-name" aria-hidden="true">
+                  {selectedFileName || "No file selected"}
+                </span>
+              </span>
             </label>
             <label>
               Official source URL

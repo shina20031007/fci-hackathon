@@ -8,10 +8,6 @@ import { getDraft } from "@/lib/db/projects";
 import { studioEnabled } from "@/lib/studio-security";
 import { ProjectFrame } from "@/components/layout/project-frame";
 import { ProjectOverview } from "@/features/decisions/project-overview";
-import { DecisionDNA } from "@/features/decisions/decision-dna";
-import { PublicVoice } from "@/features/public-voice/public-voice";
-import { Participation } from "@/features/participation/participation";
-import { ProjectMap } from "@/components/maps/project-map";
 export const dynamic = "force-dynamic";
 export default async function Preview({
   params,
@@ -40,19 +36,6 @@ export default async function Preview({
       {
         <ProjectFrame project={project} active="overview" preview>
           <ProjectOverview project={project} preview />
-          <div className="preview-section">
-            <DecisionDNA project={project} />
-          </div>
-          <div className="preview-section">
-            <PublicVoice project={project} />
-          </div>
-          <div className="preview-section">
-            <h2>Geographic preview</h2>
-            <ProjectMap projects={[project]} detailed />
-          </div>
-          <div className="preview-section">
-            <Participation project={project} />
-          </div>
         </ProjectFrame>
       }
     </Localized>

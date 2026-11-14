@@ -30,11 +30,8 @@ test("real discovery and fixture evidence, map and private draft workflows", asy
     page.getByText("Demonstration data — fictional example."),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "Decisions & evidence", exact: true })
-    .click();
-  await page
-    .getByRole("navigation", { name: "Project modules" })
-    .getByRole("link", { name: "Decision DNA" })
+    .locator(".module-grid")
+    .getByRole("link", { name: /Decision DNA/ })
     .click();
   await expect(
     page.getByRole("heading", { name: "Staff Recommendation", exact: true }),
@@ -54,8 +51,12 @@ test("real discovery and fixture evidence, map and private draft workflows", asy
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
   await page
-    .getByRole("navigation", { name: "Project modules" })
-    .getByRole("link", { name: "Map & impact" })
+    .getByRole("navigation", { name: "Breadcrumb" })
+    .getByRole("link", { name: "Willow Street" })
+    .click();
+  await page
+    .locator(".module-grid")
+    .getByRole("link", { name: /Impact Explorer/ })
     .click();
   await expect(
     page.getByText("Before / after comparison", { exact: true }),

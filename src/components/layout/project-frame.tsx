@@ -1,6 +1,5 @@
 "use client";
 import { useRef, useState } from "react";
-import { NavigationDropdown } from "./shell";
 import { Localized, useLanguage } from "@/lib/i18n/provider";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown } from "lucide-react";
@@ -127,7 +126,6 @@ function ProjectNavigation({
   active: string;
 }) {
   const { t } = useLanguage();
-  const [open, setOpen] = useState("");
   const [mobile, setMobile] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const base = `/projects/${projectId}`;
@@ -144,7 +142,6 @@ function ProjectNavigation({
       onKeyDown={(event) => {
         if (event.key === "Escape" && mobile) {
           setMobile(false);
-          setOpen("");
           trigger.current?.focus();
         }
       }}
@@ -156,7 +153,6 @@ function ProjectNavigation({
         aria-expanded={mobile}
         onClick={() => {
           setMobile(!mobile);
-          setOpen("");
         }}
       >
         {t("Project navigation")}: {t(labels[active])}
@@ -170,7 +166,6 @@ function ProjectNavigation({
         onClick={(event) => {
           if ((event.target as Element).closest("a")) {
             setMobile(false);
-            setOpen("");
           }
         }}
       >
@@ -180,24 +175,7 @@ function ProjectNavigation({
         >
           {t("Project overview")}
         </Link>
-        <NavigationDropdown
-          id="evidence-navigation"
-          label={t("Decisions & evidence")}
-          open={open}
-          setOpen={setOpen}
-          active={active === "decisions"}
-        >
-          <Link
-            href={`${base}/decisions`}
-            aria-current={active === "decisions" ? "page" : undefined}
-          >
-            {t("Decision DNA")}
-          </Link>
-          <Link href={`${base}#project-sources`}>
-            {t("Documents, amendments & sources")}
-          </Link>
-        </NavigationDropdown>
-        {(["impact", "public-voice", "participation"] as const).map((key) => (
+        {(["public-voice", "participation"] as const).map((key) => (
           <Link
             key={key}
             href={`${base}/${key}`}

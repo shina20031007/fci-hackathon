@@ -1241,6 +1241,45 @@ main {
 .evidence-button:hover {
   background: #e6f0e5;
 }
+.evidence-choices {
+  display: grid;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 16px 0 24px;
+  padding: 4px;
+}
+.evidence-choices button {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--navy);
+}
+.evidence-choices button[aria-pressed="true"] {
+  border-color: var(--teal);
+  background: #edf4f1;
+}
+.evidence-choices button > span:first-child {
+  flex: 0 0 24px;
+  text-align: center;
+  color: var(--teal);
+  font-weight: 600;
+}
+.evidence-choices strong,
+.evidence-choices small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.evidence-choices small {
+  margin-top: 4px;
+  color: #526674;
+}
 .decision-content {
   display: grid;
   grid-template-columns: 0.85fr 1.5fr;
@@ -3241,6 +3280,46 @@ body:has(.cityora-subscribe-dialog[open]) {
 .admin-workspace label {
   display: block;
   margin: 14px 0;
+}
+.admin-workspace .admin-file-upload-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  margin-top: 7px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px;
+  background: white;
+  cursor: pointer;
+}
+.admin-workspace .admin-file-upload-control:focus-within {
+  outline: 3px solid #2c8a85;
+  outline-offset: 2px;
+}
+.admin-workspace .admin-file-upload-control input[type="file"] {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.admin-file-upload-button {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: #f7f9f7;
+  color: var(--ink);
+}
+.admin-file-upload-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 400;
 }
 .admin-workspace input:not([type="checkbox"]),
 .admin-workspace select,

@@ -56,6 +56,51 @@
 .page h2 {
   font-size: 1.35rem;
 }
+.page .answerCard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 24px;
+}
+.answerCard h2 {
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+}
+.answerBody {
+  flex: 1;
+  margin: 16px 0 20px;
+  color: #405363;
+}
+.answerBody p {
+  margin: 0;
+}
+.answerBody p + p {
+  margin-top: 12px;
+}
+.answerEvidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #e6ece9;
+}
+.answerEvidence:empty {
+  display: none;
+}
+.answerEvidence :global(.evidence-button) {
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 11px;
+}
+@media (max-width: 760px) {
+  .page .answerCard {
+    padding: 20px;
+  }
+  .answerEvidence :global(.evidence-button) {
+    min-height: 44px;
+  }
+}
 .page a:focus-visible {
   outline: 3px solid #16745f;
   outline-offset: 4px;
@@ -64,10 +109,91 @@
   padding: 1rem 0;
   border-block: 1px solid #d7e1e4;
 }
+.corridorPage {
+  max-width: 1550px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.corridorPage > *,
+.corridorPage .progress,
+.corridorPage section {
+  margin-block: 0;
+}
+.corridorPage .header,
+.corridorPage .moreDetails {
+  padding-block: 0;
+}
+.corridorPage .header > :last-child,
+.corridorPage .details p:last-child {
+  margin-bottom: 0;
+}
+.corridorPage .anchors {
+  gap: 8px;
+  padding: 0;
+  background: white;
+  border-color: var(--border);
+}
+.corridorPage .anchors a {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 14px;
+  border-bottom: 3px solid transparent;
+  color: var(--navy);
+  font-weight: 600;
+}
+.corridorPage .anchors a:hover,
+.corridorPage .anchors a[aria-current="location"],
+.corridorPage .anchors a:focus-visible {
+  color: var(--teal);
+  background: #edf4f1;
+  border-bottom-color: var(--teal);
+}
+.corridorPage > :is(.corridors, .answers, section, details, [id="timeline"]) {
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+}
+.corridorPage .moreDetails > .answers {
+  margin-top: 1rem;
+}
+.corridorPage [id] {
+  scroll-margin-top: 7rem;
+}
+.corridorPage .details > section {
+  min-width: 0;
+}
+.sourcesDisclosure > summary {
+  cursor: pointer;
+  color: var(--navy);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.sourcesDisclosure[open] > summary {
+  margin-bottom: 1rem;
+}
+.sourcesDisclosure > summary:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 4px;
+}
 .page article {
   margin: 1.5rem 0;
 }
 @media (max-width: 760px) {
+  .corridorPage {
+    gap: 1.25rem;
+  }
+  .corridorPage .anchors {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+  }
+  .corridorPage .anchors a {
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
   .corridors,
   .answers,
   .details {
@@ -168,11 +294,7 @@
   background: #168554;
 }
 .progressLine li[data-state="draftDone"]:after {
-  background: repeating-linear-gradient(
-    to right,
-    #83b69e 0 7px,
-    transparent 7px 11px
-  );
+  background: #168554;
 }
 .progressLine li[data-state="current"]:after,
 .progressLine li[data-state="draftCurrent"]:after {
@@ -216,7 +338,8 @@
 }
 .progressLine li[data-state="draftDone"] .stageDot {
   border-color: #168554;
-  color: #168554;
+  background: #168554;
+  color: white;
 }
 .progressLine li[data-state="current"] .stageDot,
 .progressLine li[data-state="draftCurrent"] .stageDot {
@@ -341,11 +464,7 @@
     height: 100%;
   }
   .progressLine li[data-state="draftDone"]:after {
-    background: repeating-linear-gradient(
-      to bottom,
-      #83b69e 0 7px,
-      transparent 7px 11px
-    );
+    background: #168554;
   }
   .progressLine li[data-state="current"]:after,
   .progressLine li[data-state="draftCurrent"]:after {

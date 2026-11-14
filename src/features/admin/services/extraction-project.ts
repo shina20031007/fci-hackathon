@@ -36,6 +36,22 @@ export function extractionProject(
       notes:
         "AI extraction. Exact text matched programmatically; human verification required.",
     }));
+  const locations = extraction.locations ?? [];
+  locations.forEach((location, index) => {
+    evidence.push({
+      id: `${id}-location-${index}`,
+      sourceId,
+      excerpt: location.quote,
+      section: `Page ${location.page}`,
+      state: "Requires Verification",
+      verifiedAt: null,
+      notes: JSON.stringify({
+        type: "document-location",
+        label: location.label,
+        kind: location.kind,
+      }),
+    });
+  });
   const events = extraction.events.map((e, i) => {
     const evidenceId = id + "-event-" + i;
     evidence.push({
@@ -55,7 +71,7 @@ export function extractionProject(
       date: iso(e.date) ?? "",
       type: e.type,
       description: e.description,
-      status: "Not verified" as const,
+      status: e.status,
       position: i,
       evidenceId,
     };
@@ -71,6 +87,7 @@ export function extractionProject(
     category: category ?? "Public Services",
     neighbourhood: (
       get("location") ??
+      locations[0]?.label ??
       get("policyScope") ??
       "Geographic scope not confirmed"
     ).slice(0, 100),
@@ -121,6 +138,44 @@ export function extractionProject(
           .filter((e) => !e.id.includes("-event-"))
           .map((e) => e.id),
       },
+      ...(
+        [
+          ["proposal", "What's proposed?", ["proposal", "summary"]],
+          ["scope", "Where is this happening?", ["location", "policyScope"]],
+          ["voice", "What did residents say?", ["residentComments"]],
+        ] as const
+      ).flatMap(([kind, title, names]) => {
+        const supported = names.filter((name) => get(name));
+        // Keep missing answers empty in the dashboard rather than inventing content.
+        const places = kind === "scope" ? locations : [];
+        if (!supported.length && !places.length) return [];
+        return [
+          {
+            id: id + "-" + kind,
+            title,
+            explanation: [
+              ...new Set([
+                ...supported.map((name) => get(name)!),
+                ...places.map((place) => place.label),
+              ]),
+            ].join("\n\n"),
+            status: "Unknown",
+            authority: get("department") ?? "Authority not confirmed",
+            conditions: "",
+            amendment: "",
+            uncertainty:
+              "AI interpretation requires human verification against the original document.",
+            date: null,
+            reviewState: "Needs Verification",
+            notes:
+              "Document dashboard answer; not an additional procedural decision.",
+            evidenceIds: [
+              ...supported.map((name) => id + "-" + name),
+              ...places.map((_, index) => `${id}-location-${index}`),
+            ],
+          },
+        ];
+      }),
       ...(
         [
           ["staffRecommendation", "Staff Recommendation"],

@@ -16,7 +16,10 @@ import { LocalizedDate } from "@/lib/i18n/provider";
 import { participationStatus } from "@/lib/evidence/policy";
 import { DecisionTimeline } from "@/components/ui/decision-timeline";
 import { PrintButton } from "@/components/ui/print-button";
+import { documentDecision } from "./project-answers";
 import { HousingOverview } from "./housing-overview";
+import { ProjectAnswerCards } from "./project-answer-cards";
+import { ProjectMap } from "@/components/maps/project-map";
 export function ProjectOverview({
   project,
   preview = false,
@@ -25,10 +28,27 @@ export function ProjectOverview({
   preview?: boolean;
 }) {
   if (
-    project.category === "Housing" &&
-    project.decisions.some((d) => d.id.endsWith("-proposal"))
+    documentDecision(project) ||
+    (project.category === "Housing" &&
+      project.decisions.some((d) => d.id.endsWith("-proposal")))
   ) {
     return <HousingOverview project={project} preview={preview} />;
+  }
+  if (project.category === "Transportation") {
+    return (
+      <Localized>
+        <>
+          <DecisionTimeline project={project} />
+          <ProjectAnswerCards project={project} includeSummary />
+          {project.scopes.length > 0 && (
+            <section className="panel" id="corridor-map">
+              <h2>Project location</h2>
+              <ProjectMap projects={[project]} detailed preview={preview} />
+            </section>
+          )}
+        </>
+      </Localized>
+    );
   }
   return (
     <Localized>
