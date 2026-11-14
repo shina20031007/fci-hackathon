@@ -23,3 +23,24 @@ test("fresh seed serves the published RapidTO overview and corridor pages", asyn
     ).toBeVisible();
   }
 });
+
+test("housing progress renders evidence controls without missing keys", async ({
+  page,
+}) => {
+  const keyWarnings: string[] = [];
+  page.on("console", (message) => {
+    if (
+      message.type() === "error" &&
+      message.text().includes('unique "key" prop')
+    )
+      keyWarnings.push(message.text());
+  });
+  const response = await page.goto("/projects/toronto-35-bellevue");
+  expect(response?.status()).toBe(200);
+  await page
+    .locator('section[aria-label*="Project progress"] ol button')
+    .first()
+    .click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  expect(keyWarnings).toEqual([]);
+});

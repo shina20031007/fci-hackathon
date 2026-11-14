@@ -164,15 +164,17 @@ export function CorridorProgress({
                 aria-current={active ? "step" : undefined}
               >
                 <EvidenceButton id={event.evidenceId}>
-                  <span className={styles.stageDot}>
+                  <span key="dot" className={styles.stageDot}>
                     {state === "done" ? (
                       <Check size={17} aria-hidden="true" />
                     ) : (
                       <Circle size={active ? 10 : 7} aria-hidden="true" />
                     )}
                   </span>
-                  <span className={styles.stageName}>{label(event.title)}</span>
-                  <span className={styles.stageDate}>
+                  <span key="name" className={styles.stageName}>
+                    {label(event.title)}
+                  </span>
+                  <span key="date" className={styles.stageDate}>
                     {active ? (
                       preview ? (
                         "Reported current stage"
@@ -185,7 +187,7 @@ export function CorridorProgress({
                       (periodLabel(event.description) ?? "Date not confirmed")
                     )}
                   </span>
-                  <span className={styles.srOnly}>
+                  <span key="status" className={styles.srOnly}>
                     {state === "done"
                       ? "Completed"
                       : state === "draftDone"
