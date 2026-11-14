@@ -25,7 +25,13 @@ type Concern = {
   question: string;
   clarification: string;
 };
-export function Participation({ project }: { project: CivicProject }) {
+export function Participation({
+  project,
+  writingMode = false,
+}: {
+  project: CivicProject;
+  writingMode?: boolean;
+}) {
   const empty: Concern = {
     decision: project.decisions[0]?.id ?? "",
     concern: "",
@@ -83,29 +89,33 @@ export function Participation({ project }: { project: CivicProject }) {
     <Localized>
       {
         <>
-          <SectionTitle title="How to participate" />
-          <div className="participation-banner">
-            <CalendarDays size={27} />
-            <div>
-              <h3>
-                {project.synthetic
-                  ? "No real submissions are available in this fictional case."
-                  : current === "Open"
-                    ? "A recorded participation window is open."
-                    : "Check the recorded opportunities below."}
-              </h3>
-              <p>
-                {project.synthetic ? (
-                  <>
-                    The example timeline currently shows: {current}. It is a
-                    demonstration, not an official invitation.
-                  </>
-                ) : (
-                  "Use the official instructions to confirm availability before participating."
-                )}
-              </p>
+          <SectionTitle
+            title={writingMode ? "Draft your message" : "How to participate"}
+          />
+          {!writingMode && (
+            <div className="participation-banner">
+              <CalendarDays size={27} />
+              <div>
+                <h3>
+                  {project.synthetic
+                    ? "No real submissions are available in this fictional case."
+                    : current === "Open"
+                      ? "A recorded participation window is open."
+                      : "Check the recorded opportunities below."}
+                </h3>
+                <p>
+                  {project.synthetic ? (
+                    <>
+                      The example timeline currently shows: {current}. It is a
+                      demonstration, not an official invitation.
+                    </>
+                  ) : (
+                    "Use the official instructions to confirm availability before participating."
+                  )}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
           <div className="action-grid">
             <section>
               <h2>Participation record</h2>
@@ -226,7 +236,11 @@ export function Participation({ project }: { project: CivicProject }) {
               <div className="row between">
                 <NotebookPen size={23} />
               </div>
-              <h2>Organize your questions.</h2>
+              <h2>
+                {writingMode
+                  ? "Write your questions"
+                  : "Organize your questions."}
+              </h2>
               <p className="muted">Draft only. Not submitted.</p>
               <label>
                 Decision item

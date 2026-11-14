@@ -344,7 +344,11 @@ export async function transitionProject(
   });
   return (await getDraft(id, client))!;
 }
-export async function seedProject(p: CivicProject, client: PrismaClient = db) {
+export async function seedProject(
+  p: CivicProject,
+  client: PrismaClient = db,
+  options: { publishedAt?: Date; agendaItem?: string } = {},
+) {
   p = projectSchema.parse(p);
   if (await client.project.findUnique({ where: { id: p.id } })) return;
   const issues = publicationIssues(p);
@@ -352,11 +356,17 @@ export async function seedProject(p: CivicProject, client: PrismaClient = db) {
   await client.$transaction(
     async (tx) => {
       await writeRecords(tx, p);
+      if (options.agendaItem)
+        await tx.project.update({
+          where: { id: p.id },
+          data: { agendaItem: options.agendaItem },
+        });
       await tx.publication.create({
         data: {
           projectId: p.id,
           snapshot: JSON.stringify(p),
           revision: p.revision,
+          ...(options.publishedAt ? { publishedAt: options.publishedAt } : {}),
         },
       });
       await tx.reviewRecord.create({

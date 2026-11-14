@@ -325,8 +325,9 @@ export function Discovery({
           </div>
           {validModule && (
             <div className="notice">
-              Choose a project to open its {validModule.replace("-", " ")}{" "}
-              workspace.
+              {validModule === "public-voice"
+                ? "Choose a project to see its Public Voice page."
+                : `Choose a project to open its ${validModule.replace("-", " ")} workspace.`}
             </div>
           )}
           <div className="discovery-grid">
@@ -366,7 +367,10 @@ export function Discovery({
                         className="module-open"
                         href={`/projects/${p.id}/${validModule}`}
                       >
-                        Open selected module <ArrowRight size={15} />
+                        {validModule === "public-voice"
+                          ? "View Public Voice"
+                          : "Open selected module"}{" "}
+                        <ArrowRight size={15} />
                       </Link>
                     )}
                   </div>

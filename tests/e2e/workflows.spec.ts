@@ -164,15 +164,15 @@ test("search filters, create project and blocked publication", async ({
   await page
     .getByLabel("Category", { exact: true })
     .selectOption("Transportation");
-  await expect(page.locator(".project-card")).toHaveCount(1);
+  await expect(page.locator(".project-card")).toHaveCount(6);
   await page
     .getByLabel("Decision status", { exact: true })
-    .selectOption("Council Decision");
+    .selectOption("Withdrawn");
   await expect(
     page.getByRole("heading", { name: "No matching decisions" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page.locator(".project-card")).toHaveCount(3);
+  await expect(page.locator(".project-card")).toHaveCount(10);
   await page.goto("/studio");
   await page
     .getByRole("button", { name: "Create project", exact: true })
@@ -218,7 +218,7 @@ test("keyboard, evidence focus and mobile navigation remain accessible", async (
   await expect(
     page.getByRole("button", { name: "Menu", exact: true }),
   ).toBeVisible();
-  await expect(page.locator(".project-card")).toHaveCount(3);
+  await expect(page.locator(".project-card")).toHaveCount(10);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -268,8 +268,9 @@ test("map selection, layer controls and a printable brief work", async ({
   await page.goto("/explore");
   await expect(page.locator("arcgis-map")).toBeVisible({ timeout: 60000 });
   await page
-    .locator(".map-project-list")
-    .getByRole("button", { name: "Maryhill Road", exact: true })
+    .locator(".project-card")
+    .filter({ hasText: "Maryhill Road" })
+    .getByRole("button", { name: "Locate on map" })
     .click();
   await expect(page.locator(".map-wrap .map-selection")).toContainText(
     "Maryhill Road",

@@ -48,7 +48,7 @@ test("all six modules present translated controls and keep filter values canonic
     .selectOption("Transportation");
   await page.getByLabel("Language", { exact: true }).selectOption("fr");
   await expect(page.locator("#category")).toHaveValue("Transportation");
-  await expect(page.locator(".project-card")).toHaveCount(1);
+  await expect(page.locator(".project-card")).toHaveCount(6);
   await expect(page.locator("h1")).not.toContainText("Find the decisions");
   await page.goto("/");
   await expect(page.locator("h1")).not.toContainText(
@@ -98,7 +98,7 @@ test("real cases stay separate, historical consultation is closed without an inv
     page.getByLabel("Show fictional test cases instead of real projects"),
   ).toHaveCount(0);
   await expect(page.locator("#municipality")).not.toContainText("fictional");
-  await expect(page.locator(".project-card")).toHaveCount(3);
+  await expect(page.locator(".project-card")).toHaveCount(10);
   await expect(page.locator(".demo-banner, .translation-notice")).toHaveCount(
     0,
   );
@@ -229,7 +229,7 @@ test("integrated navigation opens live routes, sources and browser history", asy
   await page
     .getByLabel("Category", { exact: true })
     .selectOption("Transportation");
-  await expect(page.locator(".project-card")).toHaveCount(1);
+  await expect(page.locator(".project-card")).toHaveCount(6);
   await page
     .locator(".project-card")
     .getByRole("link", { name: "Maryhill Road", exact: true })
@@ -270,7 +270,7 @@ test("integrated navigation opens live routes, sources and browser history", asy
     .getByRole("link", { name: "All projects" })
     .click();
   await expect(page).toHaveURL(/\/explore$/);
-  await expect(page.locator(".project-card")).toHaveCount(3);
+  await expect(page.locator(".project-card")).toHaveCount(10);
   await page.getByRole("link", { name: "Staff Portal", exact: true }).click();
   await expect(page).toHaveURL(/\/admin$/);
   await expect(
@@ -523,7 +523,7 @@ test("ArcGIS denied services retain fallback map, regional search and coordinate
   await expect(page.getByText(/Selected coordinates:/)).toBeVisible({
     timeout: 30000,
   });
-  await expect(page.locator(".geography-details")).toBeVisible();
+  await expect(page.getByLabel("Geographic text alternative")).toBeAttached();
 });
 
 test("ArcGIS missing key keeps regional search and coordinate input", async ({
@@ -559,7 +559,7 @@ test("ArcGIS missing key keeps regional search and coordinate input", async ({
   await page.getByLabel("Latitude", { exact: true }).fill("43.46");
   await page.getByRole("button", { name: "Check location" }).click();
   await expect(page.getByText(/Selected coordinates:/)).toBeVisible();
-  await expect(page.locator(".geography-details")).toBeVisible();
+  await expect(page.getByLabel("Geographic text alternative")).toBeAttached();
 });
 
 test("cityora homepage search and all seven category links reuse Explore filters", async ({
@@ -593,16 +593,21 @@ test("cityora homepage search and all seven category links reuse Explore filters
     "Municipal Budget",
     "Public Services",
   ];
+  const expectedCounts: Record<string, number> = {
+    Transportation: 6,
+    Housing: 2,
+    "Land Use and Zoning": 1,
+    Infrastructure: 0,
+    Environment: 0,
+    "Municipal Budget": 1,
+    "Public Services": 0,
+  };
   for (const category of categories) {
     await page.goto("/");
     await page.locator(`a[data-category="${category}"]`).click();
     await expect(page.locator("#category")).toHaveValue(category);
     await expect(page.locator(".project-card")).toHaveCount(
-      ["Transportation", "Land Use and Zoning", "Municipal Budget"].includes(
-        category,
-      )
-        ? 1
-        : 0,
+      expectedCounts[category] ?? 0,
     );
   }
   await page.goto("/explore?category=invalid");

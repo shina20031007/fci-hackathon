@@ -700,7 +700,6 @@
   "Check location": "Vérifier le lieu",
   "Map projects": "Projets sur la carte",
   "Geographic text alternative": "Alternative textuelle géographique",
-  "Geographic records and limitations": "Données géographiques et limites",
   "Administrative boundaries describe policy coverage. Dashed road lines show context. A calculated 500 m distance is a system proximity rule, not an official impact area.": "Les limites administratives indiquent la portée des politiques. Les lignes routières en tirets servent de contexte. La distance calculée de 500 m est une règle de proximité du système, et non une zone d’effet officielle.",
   "Selected coordinates:": "Coordonnées sélectionnées :",
   "No official geographic extent provided.": "Aucune étendue géographique officielle n’est fournie.",
@@ -822,7 +821,6 @@
   "Corridor colours": "Couleurs des corridors",
   "Dashed lines: TTC scheduled route patterns. Solid lines: installed RapidTO reference segments.": "Pointillés : tracés TTC programmés. Traits pleins : tronçons RapidTO installés représentés à titre de référence.",
   "Staff sign-in to preview corridor maps": "Connexion du personnel pour prévisualiser les cartes",
-  "Route snapshot: November 13, 2026. Selected scheduled patterns, not live vehicles or every route branch.": "Aperçu des itinéraires au 13 novembre 2026. Tracés programmés sélectionnés ; ni véhicules en direct ni toutes les branches.",
   "Project progress": "Avancement du projet",
   "Related TTC routes": "Lignes TTC connexes",
   "Planning": "Planification",
@@ -911,5 +909,15 @@
   "Reference property parcel — 636–646 Danforth Rd": "Parcelle de référence — 636–646 Danforth Rd",
   "City property mapping matched to the official address points. Reference parcel only; not a surveyed construction or demolition boundary.": "Parcelle municipale associée aux points d’adresse officiels. Parcelle de référence seulement ; elle ne constitue pas une limite de chantier ou de démolition établie par arpentage.",
   "35 Bellevue Avenue. The map shows the City’s reference property parcel. Construction may involve truck traffic, noise, dust and vibration, as described in the bulletin.": "35 Bellevue Avenue. La carte montre la parcelle de référence de la Ville. Les travaux peuvent entraîner des camions, du bruit, de la poussière et des vibrations, selon le bulletin.",
-  "The map shows three reference property parcels: 411 Kennedy Road, 415 Kennedy Road, and the shared 636–646 Danforth Road parcel. Gaps between these parcels are not included.": "La carte montre trois parcelles de référence : 411 Kennedy Road, 415 Kennedy Road et la parcelle commune du 636–646 Danforth Road. Les espaces entre ces parcelles ne sont pas inclus."
+  "The map shows three reference property parcels: 411 Kennedy Road, 415 Kennedy Road, and the shared 636–646 Danforth Road parcel. Gaps between these parcels are not included.": "La carte montre trois parcelles de référence : 411 Kennedy Road, 415 Kennedy Road et la parcelle commune du 636–646 Danforth Road. Les espaces entre ces parcelles ne sont pas inclus.",
+  "Project locations in text": "Emplacements des projets en texte",
+  "No reviewed summary of residents’ comments is available here.": "Aucun résumé vérifié des commentaires des résidents n’est disponible ici.",
+  "Your Voice": "Votre voix",
+  "Choose a project to draft your message. Drafts are not submitted.": "Choisissez un projet pour rédiger votre message. Les brouillons ne sont pas envoyés.",
+  "Choose a project": "Choisissez un projet",
+  "Open writing space": "Ouvrir l’espace de rédaction",
+  "Draft your message": "Rédigez votre message",
+  "Write your questions": "Rédigez vos questions",
+  "Choose a project to see its Public Voice page.": "Choisissez un projet pour consulter sa page Voix du public.",
+  "View Public Voice": "Voir la voix du public"
 }

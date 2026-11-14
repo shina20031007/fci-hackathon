@@ -19,7 +19,7 @@ export default async function ModulePage({
   const corridor = corridors.find((c) => c.id === projectId);
   if (corridor)
     redirect(
-      `${rapidtoPath}/corridors/${corridor.slug}#${module === "impact" ? "corridor-map" : module === "decisions" ? "timeline" : module === "public-voice" ? "changes" : "participation"}`,
+      `${rapidtoPath}/corridors/${corridor.slug}#${module === "impact" ? "corridor-map" : module === "decisions" ? "timeline" : module === "public-voice" ? "public-voice" : "participation"}`,
     );
   if (projectId === rapidtoId && module === "impact")
     redirect(`${rapidtoPath}#corridor-map`);

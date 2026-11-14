@@ -184,6 +184,7 @@ export function RapidTOPage({
                 <a href="#corridor-map">Map &amp; location</a>
                 <a href="#timeline">Decision Timeline</a>
                 <a href="#changes">What Changed?</a>
+                <a href="#public-voice">Public Voice</a>
                 <a href="#sources">Sources &amp; Evidence</a>
               </nav>
               <section id="corridor-map">
@@ -207,22 +208,57 @@ export function RapidTOPage({
                   </p>
                 )}
               </section>
-              <details id="changes" className={styles.moreDetails}>
-                <summary>What changed and what residents said</summary>
+              <section id="changes" className={styles.moreDetails}>
+                <h2>What Changed?</h2>
                 <div className={styles.details}>
-                  {sections.slice(4).map((d) => (
-                    <section className="panel" key={d.id}>
-                      <h2>{d.title}</h2>
-                      <p>{d.explanation}</p>
-                      {d.conditions && <p>{d.conditions}</p>}
-                      {d.uncertainty && <p>{d.uncertainty}</p>}
-                      {d.evidenceIds.map((id) => (
-                        <EvidenceButton key={id} id={id} />
-                      ))}
-                    </section>
-                  ))}
+                  {sections
+                    .filter(
+                      (d) =>
+                        d.id.endsWith("-changes") || d.id.endsWith("-next"),
+                    )
+                    .map((d) => (
+                      <section className="panel" key={d.id}>
+                        <h2>{d.title}</h2>
+                        <p>{d.explanation}</p>
+                        {d.conditions && <p>{d.conditions}</p>}
+                        {d.uncertainty && <p>{d.uncertainty}</p>}
+                        {d.evidenceIds.map((id) => (
+                          <EvidenceButton key={id} id={id} />
+                        ))}
+                      </section>
+                    ))}
                 </div>
-              </details>
+              </section>
+              <section id="public-voice" className={styles.moreDetails}>
+                <h2>Public Voice</h2>
+                {sections.some(
+                  (d) => d.id.endsWith("-voice") || d.id.endsWith("-response"),
+                ) ? (
+                  <div className={styles.details}>
+                    {sections
+                      .filter(
+                        (d) =>
+                          d.id.endsWith("-voice") || d.id.endsWith("-response"),
+                      )
+                      .map((d) => (
+                        <section className="panel" key={d.id}>
+                          <h3>{d.title}</h3>
+                          <p>{d.explanation}</p>
+                          {d.conditions && <p>{d.conditions}</p>}
+                          {d.uncertainty && <p>{d.uncertainty}</p>}
+                          {d.evidenceIds.map((id) => (
+                            <EvidenceButton key={id} id={id} />
+                          ))}
+                        </section>
+                      ))}
+                  </div>
+                ) : (
+                  <p>
+                    No reviewed summary of residents’ comments is available
+                    here.
+                  </p>
+                )}
+              </section>
             </>
           )}
           <details id="sources" className="panel">

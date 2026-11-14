@@ -108,6 +108,10 @@ npm run db:setup
 
 `DATABASE_URL=file:./dev.db` is resolved relative to `prisma/`. Migrations create the tables. The helper creates an empty SQLite file when necessary; it never resets an existing database. The seed inserts missing demonstration projects and preserves existing edits. Local database files and secrets are ignored by Git.
 
+Admin Portal publications are stored in the local SQLite `Publication.snapshot` table; publishing does not send them to GitHub. The reviewed RapidTO overview, its four corridor projects, and two other published Toronto projects have been exported to `data/published/projects.json`. `prisma/seed.ts` loads these complete public snapshots, including evidence, timelines, participation and map geometry, with their original publication timestamps. The RapidTO overview's public agenda-item link is included as project metadata. Seed inserts a project only when its ID is absent, so rerunning it does not replace a teammate's existing draft or publication. The export intentionally excludes unpublished drafts, staff review history, uploaded documents, sessions and credentials.
+
+After pulling these files, run `npm run db:setup` and restart the app. On Windows PowerShell use `npm.cmd run db:setup`. A fresh clone also needs `npm ci` and a local `.env` copied from `.env.example` before setup. For future Admin Portal publications, explicitly review and add the approved `Publication.snapshot` and `publishedAt` to the tracked JSON file, then commit that file. Updating an already seeded project requires a separately reviewed synchronization change because the idempotent seed leaves existing IDs untouched.
+
 - `STUDIO_ENABLED=true` enables the local editor. Set it to `false` for read-only browsing.
 - `NEXT_TELEMETRY_DISABLED=1` disables Next.js telemetry in the supplied environment template.
 - No AI keys, paid map credentials, or third-party authentication are required.

@@ -4,15 +4,7 @@ import Link from "next/link";
 import { Layers, LocateFixed } from "lucide-react";
 import type { CivicProject } from "@/lib/validation/project";
 import type { MapRuntime } from "./arcgis-runtime";
-import {
-  geographicRelationship,
-  mapScopeLayer,
-  corridorColor,
-} from "@/lib/geospatial/relevance";
-import {
-  EvidenceButton,
-  EvidenceProvider,
-} from "@/components/evidence/evidence-provider";
+import { mapScopeLayer, corridorColor } from "@/lib/geospatial/relevance";
 import { Localized, useLanguage } from "@/lib/i18n/provider";
 import { projectParticipation } from "@/lib/evidence/policy";
 type Props = {
@@ -31,7 +23,6 @@ export function ProjectMap({
   selectedId,
   focusRequest,
   onSelect,
-  detailed = false,
   city = "Waterloo",
   preview = false,
   searchLocation,
@@ -175,7 +166,7 @@ export function ProjectMap({
   const chosen = projects.find((p) => p.id === (selectedId || activeId));
   function detailPath(id: string, section: string) {
     if (id.startsWith("rapidto-"))
-      return `/projects/toronto-2024-ex11-8/corridors/${id.slice(8)}${preview ? "?preview=1" : ""}#${section === "decisions" ? "timeline" : section === "public-voice" ? "changes" : "participation"}`;
+      return `/projects/toronto-2024-ex11-8/corridors/${id.slice(8)}${preview ? "?preview=1" : ""}#${section === "decisions" ? "timeline" : section === "public-voice" ? "public-voice" : "participation"}`;
     return `/projects/${id}/${section}`;
   }
   function select(id: string) {
@@ -227,15 +218,13 @@ export function ProjectMap({
                 <button
                   key={p.id}
                   className="text-button"
+                  aria-pressed={p.id === (selectedId || activeId)}
                   onClick={() => select(p.id)}
                 >
                   <span
                     aria-hidden="true"
                     style={{
-                      display: "inline-block",
-                      width: 26,
                       borderTop: `4px dashed ${corridorColor(p.id)}`,
-                      marginRight: 8,
                     }}
                   />
                   {p.title.replace("RapidTO: ", "")}
@@ -247,13 +236,6 @@ export function ProjectMap({
               )}
             </p>
           </div>
-        )}
-        {hasTransit && (
-          <p className="small">
-            {t(
-              "Route snapshot: November 13, 2026. Selected scheduled patterns, not live vehicles or every route branch.",
-            )}
-          </p>
         )}
         <div
           className="map-canvas"
@@ -358,18 +340,12 @@ export function ProjectMap({
             <button className="button secondary">Check location</button>
           </form>
         </details>
-        <div className="map-project-list" aria-label="Map projects">
-          {projects.map((p) => (
-            <button
-              className="text-button"
-              aria-pressed={p.id === (selectedId || activeId)}
-              key={p.id}
-              onClick={() => select(p.id)}
-            >
-              {p.title}
-            </button>
-          ))}
-        </div>
+        {location && (
+          <p role="status" className="map-notice">
+            Selected coordinates: {location[0].toFixed(5)},{" "}
+            {location[1].toFixed(5)}
+          </p>
+        )}
         {chosen && (
           <div className="map-selection">
             <strong>{chosen.title}</strong>
@@ -387,81 +363,18 @@ export function ProjectMap({
             </Link>
           </div>
         )}
-        <section
-          className="geography-details"
-          aria-label="Geographic text alternative"
-        >
-          <h3>Geographic records and limitations</h3>
-          <p>
-            Administrative boundaries describe policy coverage. Dashed road
-            lines show context. A calculated 500 m distance is a system
-            proximity rule, not an official impact area.
-          </p>
-          {location && (
-            <p role="status">
-              Selected coordinates: {location[0].toFixed(5)},{" "}
-              {location[1].toFixed(5)}
-            </p>
-          )}
+        <div className="sr-only" aria-label="Geographic text alternative">
+          <h3>Project locations in text</h3>
           {projects.map((p) => (
-            <EvidenceProvider project={p} key={p.id}>
-              <div>
-                <h4>{p.title}</h4>
-                {!p.scopes.length && (
-                  <p>No official geographic extent provided.</p>
-                )}
-                {p.scopes.map((s) => (
-                  <div className="scope-record" key={s.id}>
-                    <button
-                      className="text-button"
-                      onClick={() => select(p.id)}
-                    >
-                      {layerLabel(mapScopeLayer(s))}: {s.label}
-                    </button>
-                    {p.synthetic && <strong>Fictional example</strong>}
-                    <p>{s.description}</p>
-                    {location && (
-                      <p className="notice">
-                        {s.id.includes("-parcel-") &&
-                        geographicRelationship(location, s.geometry) ===
-                          "Inside the recorded project area"
-                          ? "Inside the reference property parcel"
-                          : geographicRelationship(
-                              location,
-                              s.geometry,
-                              s.kind === "Municipality boundary",
-                            )}
-                      </p>
-                    )}
-                    {s.kind === "Transportation feature" &&
-                      !s.id.includes("-ttc-") &&
-                      !p.synthetic && (
-                        <p>
-                          No licensed official project polygon is provided. The
-                          recorded line is derived corridor context.
-                        </p>
-                      )}
-                    {detailed && <EvidenceButton id={s.evidenceId} />}
-                    <div className="row">
-                      <Link
-                        className="text-link"
-                        href={detailPath(p.id, "decisions")}
-                      >
-                        Related decision
-                      </Link>
-                      <Link
-                        className="text-link"
-                        href={detailPath(p.id, "participation")}
-                      >
-                        Participation
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </EvidenceProvider>
+            <p key={p.id}>
+              {p.title}:{" "}
+              {p.scopes
+                .filter((scope) => !scope.id.includes("-ttc-"))
+                .map((scope) => scope.label)
+                .join("; ") || p.neighbourhood}
+            </p>
           ))}
-        </section>
+        </div>
         <p className="map-caption">
           <a
             href={

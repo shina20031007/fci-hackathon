@@ -98,6 +98,22 @@ function NavigationHeader() {
   const [open, setOpen] = useState("");
   const [mobile, setMobile] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
+  const projectPath = pathname.startsWith("/projects/")
+    ? pathname.split("/")
+    : null;
+  const corridorIds: Record<string, string> = {
+    bathurst: "rapidto-bathurst",
+    dufferin: "rapidto-dufferin",
+    "eglinton-east": "rapidto-eglinton-east",
+    jane: "rapidto-jane",
+  };
+  const voiceProjectId =
+    projectPath?.[3] === "corridors"
+      ? corridorIds[projectPath[4]]
+      : projectPath?.[2];
+  const voiceHref = voiceProjectId
+    ? `/your-voice?project=${encodeURIComponent(voiceProjectId)}`
+    : "/your-voice";
   return (
     <header
       className="civic-header"
@@ -164,6 +180,12 @@ function NavigationHeader() {
             </Link>
             <Link href="/explore#category">{t("Find by category")}</Link>
           </NavigationDropdown>
+          <Link
+            href={voiceHref}
+            aria-current={pathname === "/your-voice" ? "page" : undefined}
+          >
+            {t("Your Voice")}
+          </Link>
           <Link
             href="/about"
             aria-current={pathname === "/about" ? "page" : undefined}

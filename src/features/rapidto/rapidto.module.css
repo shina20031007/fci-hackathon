@@ -84,30 +84,12 @@
   }
 }
 
-.page :global(.map-route-legend) {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.5rem;
-  padding: 1rem;
-  background: #f3f7f8;
-  border: 1px solid #d7e1e4;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-}
-.page :global(.map-route-legend p) {
-  flex-basis: 100%;
-  margin: 0;
-  font-size: 0.9rem;
-}
 .page :global(.map-canvas) {
   min-height: 480px;
 }
 @media (max-width: 600px) {
   .page :global(.map-canvas) {
     min-height: 360px;
-  }
-  .page :global(.map-route-legend button) {
-    min-height: 44px;
   }
 }
 
