@@ -19,6 +19,20 @@ export function ProjectFrame({
   children: React.ReactNode;
   preview?: boolean;
 }) {
+  const housingStage =
+    project.category === "Housing" &&
+    project.decisions.some((d) => d.id.endsWith("-proposal"))
+      ? project.events.find(
+          (event) =>
+            event.status === "Current" &&
+            project.evidence.some(
+              (e) =>
+                e.id === event.evidenceId &&
+                e.verifiedAt &&
+                e.state === "Officially Confirmed",
+            ),
+        )?.title
+      : undefined;
   return (
     <Localized>
       {
@@ -69,7 +83,7 @@ export function ProjectFrame({
               </p>
               <h1>{project.title}</h1>
               <div className="tags">
-                <Badge tone="blue">{project.status}</Badge>
+                <Badge tone="blue">{housingStage ?? project.status}</Badge>
                 <span className="small muted">
                   {project.synthetic ? "Demo reviewed" : "Last verified"}{" "}
                   {<LocalizedDate value={project.verifiedAt} />}

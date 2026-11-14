@@ -32,6 +32,22 @@ export function invalidateChangedReviews(
     evidence: next.evidence.map((e) =>
       changedEvidence.has(e.id) ? { ...e, verifiedAt: null } : e,
     ),
+    events: next.events.map((event) => {
+      const old = previous.events.find((e) => e.id === event.id);
+      const content = (e: typeof event) =>
+        JSON.stringify({
+          title: e.title,
+          date: e.date,
+          status: e.status,
+          description: e.description,
+          evidenceId: e.evidenceId,
+        });
+      return !old ||
+        content(old) !== content(event) ||
+        changedEvidence.has(event.evidenceId)
+        ? { ...event, completionConfirmedOn: null }
+        : event;
+    }),
     decisions: next.decisions.map((decision) => {
       const old = previous.decisions.find((d) => d.id === decision.id);
       const content = (d: typeof decision) =>

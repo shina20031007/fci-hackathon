@@ -14,12 +14,27 @@ import { Badge, SectionTitle } from "@/components/ui/shared";
 import { EvidenceButton } from "@/components/evidence/evidence-provider";
 import { LocalizedDate } from "@/lib/i18n/provider";
 import { participationStatus } from "@/lib/evidence/policy";
+import { DecisionTimeline } from "@/components/ui/decision-timeline";
 import { PrintButton } from "@/components/ui/print-button";
-export function ProjectOverview({ project }: { project: CivicProject }) {
+import { HousingOverview } from "./housing-overview";
+export function ProjectOverview({
+  project,
+  preview = false,
+}: {
+  project: CivicProject;
+  preview?: boolean;
+}) {
+  if (
+    project.category === "Housing" &&
+    project.decisions.some((d) => d.id.endsWith("-proposal"))
+  ) {
+    return <HousingOverview project={project} preview={preview} />;
+  }
   return (
     <Localized>
       {
         <>
+          <DecisionTimeline project={project} />
           <div className="project-overview-grid">
             <section className="panel project-summary">
               <p className="eyebrow">THE PROPOSAL, IN PLAIN LANGUAGE</p>

@@ -190,6 +190,30 @@ function NavigationHeader() {
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { t } = useLanguage();
+  if (pathname.startsWith("/admin") || pathname.startsWith("/studio"))
+    return (
+      <div lang="en" className="civic-shell">
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
+        <header className="civic-header">
+          <div className="civic-topline">
+            <Link className="civic-brand" href="/admin">
+              cityora.
+            </Link>
+            <Link href="/admin">Projects</Link>
+            <Link href="/admin?tab=imports">Import Documents</Link>
+            <Link href="/admin?tab=official">Official Data</Link>
+            <Link href="/admin?tab=review">Review Queue</Link>
+            <Link href="/admin?tab=trash">Archived / Trash</Link>
+            <Link href="/">Public Portal ↗</Link>
+          </div>
+        </header>
+        <main id="main-content" tabIndex={-1}>
+          {children}
+        </main>
+      </div>
+    );
   return (
     <div className="civic-shell">
       <a className="skip-link" href="#main-content">

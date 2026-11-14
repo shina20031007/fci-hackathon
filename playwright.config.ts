@@ -36,6 +36,12 @@ export default defineConfig({
     env: {
       DATABASE_URL: `file:${resolve(".test-data/e2e.db")}`,
       STUDIO_ENABLED: "true",
+      ADMIN_EMAIL: "staff@example.invalid",
+      ADMIN_PASSWORD: "test-only-password-not-production",
+      ADMIN_REMOTE_ENABLED: "false",
+      ADMIN_ORIGIN: "",
+      OPENAI_API_KEY: "",
+
       NEXT_DIST_DIR: ".next-test",
       NEXT_TELEMETRY_DISABLED: "1",
     },

@@ -48,6 +48,7 @@ export const documentTypes = [
   "Consultation report",
   "Planning instrument",
   "Geographic dataset",
+  "Official dataset",
 ] as const;
 const id = z
   .string()
@@ -176,7 +177,12 @@ export const projectSchema = z
           id,
           decisionId: id,
           title: text,
-          date,
+          date: z.union([date, z.literal("")]),
+          completionConfirmedOn: date.nullish(),
+          status: z
+            .enum(["Completed", "Current", "Planned", "Not verified"])
+            .optional(),
+          position: z.number().int().min(0).optional(),
           type: text,
           description: text,
           evidenceId: id,

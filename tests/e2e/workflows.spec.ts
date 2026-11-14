@@ -1,5 +1,15 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+test.beforeEach(async ({ page, baseURL }) => {
+  const response = await page.request.post("/api/admin/login", {
+    headers: { origin: baseURL! },
+    data: {
+      email: "staff@example.invalid",
+      password: "test-only-password-not-production",
+    },
+  });
+  expect(response.ok()).toBe(true);
+});
 test("real discovery and fixture evidence, map and private draft workflows", async ({
   page,
 }) => {

@@ -7,6 +7,13 @@ import type { CivicProject } from "@/lib/validation/project";
 import { LocalizedDate } from "@/lib/i18n/provider";
 import { Badge } from "@/components/ui/shared";
 const EvidenceContext = createContext<(id: string) => void>(() => {});
+export function evidenceSourceUrl(url: string, section: string) {
+  const source = new URL(url);
+  const page = section.match(/^Page\s+([1-9]\d*)\b/i)?.[1];
+  if (source.pathname.toLowerCase().endsWith(".pdf") && page)
+    source.hash = `page=${page}`;
+  return source.href;
+}
 export function EvidenceButton({
   id,
   children = "View evidence",
@@ -118,7 +125,7 @@ export function EvidenceProvider({
                   {source.url && !source.synthetic ? (
                     <a
                       className="button primary full"
-                      href={source.url}
+                      href={evidenceSourceUrl(source.url, evidence.section)}
                       target="_blank"
                       rel="noreferrer"
                     >

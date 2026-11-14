@@ -835,6 +835,32 @@ main {
   border: 0;
   font-size: 14px;
   padding: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.discovery-search button {
+  flex: 0 0 auto;
+}
+.address-results {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1px solid #d9e2db;
+  border-radius: 9px;
+  background: #f5f9f7;
+}
+.address-results p {
+  margin: 0 0 8px;
+}
+.address-results p:last-child {
+  margin-bottom: 0;
+}
+.address-results select {
+  margin-left: 8px;
+}
+.address-match {
+  margin: 4px 0 14px;
+  font-size: 13px;
+  color: #365645;
 }
 .filters {
   display: flex;
@@ -3118,5 +3144,100 @@ body:has(.cityora-subscribe-dialog[open]) {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+}
+
+.decision-stages {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 28px 0;
+  overflow: auto;
+  gap: 16px;
+}
+.decision-stages li {
+  flex: 1 0 210px;
+  border-top: 4px solid #a5afb4;
+  padding: 20px 16px;
+  background: #f5f7f6;
+}
+.decision-stages li.stage-complete {
+  border-color: #26786c;
+}
+.decision-stages li.stage-current {
+  border-color: #1268a8;
+  background: #eef5fc;
+}
+.decision-stages li > strong {
+  font-size: 12px;
+}
+.timeline-context {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.admin-workspace label {
+  display: block;
+  margin: 14px 0;
+}
+.admin-workspace input:not([type="checkbox"]),
+.admin-workspace select,
+.admin-workspace textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+}
+.admin-workspace textarea {
+  min-height: 120px;
+}
+.admin-workspace .admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0;
+}
+.admin-workspace .review-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.admin-workspace pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 360px;
+  overflow: auto;
+  font-size: 13px;
+}
+.admin-workspace .panel {
+  margin-bottom: 20px;
+}
+.admin-workspace table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.admin-workspace td,
+.admin-workspace th {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.admin-workspace .table-scroll {
+  overflow: auto;
+}
+@media (max-width: 700px) {
+  .decision-stages {
+    flex-direction: column;
+    overflow: visible;
+  }
+  .decision-stages li {
+    flex: auto;
+    border-top: 0;
+    border-left: 4px solid #a5afb4;
+  }
+  .timeline-context,
+  .admin-workspace .review-columns {
+    grid-template-columns: 1fr;
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 import { Localized } from "@/lib/i18n/provider";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, ArrowRight, X, MapPin } from "lucide-react";
 import Link from "next/link";
 import {
@@ -12,6 +12,24 @@ import {
 import { filterProjects } from "@/lib/evidence/policy";
 import { ProjectCard, Empty } from "@/components/ui/shared";
 import { ProjectMap } from "@/components/maps/project-map";
+import { projectProximity } from "@/lib/geospatial/relevance";
+const addressPattern =
+  /^\d{1,6}\s+.+\b(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|crescent|court|rue|chemin)\b/i;
+type AddressResult = {
+  query: string;
+  label: string;
+  location: [number, number];
+};
+type GeocodeResponse = {
+  error?: { code?: number };
+  candidates?: {
+    address: string;
+    score: number;
+    location: { x: number; y: number };
+    attributes?: { Addr_type?: string };
+  }[];
+};
+const addressLookups = new Map<string, Promise<GeocodeResponse>>();
 export function Discovery({
   projects,
   initialQuery = "",
@@ -29,16 +47,111 @@ export function Discovery({
     [status, setStatus] = useState(""),
     [participation, setParticipation] = useState(""),
     [recent, setRecent] = useState(false),
-    [selected, setSelected] = useState("");
+    [selected, setSelected] = useState(""),
+    [focusRequest, setFocusRequest] = useState(0),
+    [address, setAddress] = useState<AddressResult | null>(null),
+    [addressError, setAddressError] = useState(""),
+    [addressBusy, setAddressBusy] = useState(false),
+    [radius, setRadius] = useState(500);
+  useEffect(() => {
+    if (initialQuery && addressPattern.test(initialQuery))
+      void findAddress(initialQuery);
+    // The submitted homepage search is resolved once; typing never calls geocoding.
+  }, [initialQuery]);
+  async function findAddress(input: string) {
+    const key = process.env.NEXT_PUBLIC_ARCGIS_API_KEY?.trim();
+    setAddress(null);
+    if (!key) {
+      setAddressError(
+        "Address search is unavailable. Configure ArcGIS geocoding.",
+      );
+      return;
+    }
+    setAddressBusy(true);
+    setAddressError("");
+    try {
+      const url = new URL(
+        "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates",
+      );
+      url.search = new URLSearchParams({
+        singleLine: input,
+        countryCode: "CAN",
+        outFields: "Addr_type,Match_addr",
+        maxLocations: "2",
+        f: "json",
+        token: key,
+      }).toString();
+      let lookup = addressLookups.get(input);
+      if (!lookup) {
+        lookup = fetch(url, { cache: "no-store" }).then(async (response) => {
+          const data = (await response.json()) as GeocodeResponse;
+          if (!response.ok || data.error) throw new Error("service");
+          return data;
+        });
+        addressLookups.set(input, lookup);
+        void lookup.then(
+          () => addressLookups.delete(input),
+          () => addressLookups.delete(input),
+        );
+      }
+      const data = await lookup;
+      const candidates = (data.candidates ?? []).filter(
+        (candidate) =>
+          candidate.score >= 85 &&
+          ["PointAddress", "StreetAddress", "StreetInt"].includes(
+            candidate.attributes?.Addr_type ?? "",
+          ) &&
+          Number.isFinite(candidate.location.x) &&
+          Number.isFinite(candidate.location.y),
+      );
+      if (!candidates.length) {
+        setAddressError(
+          "No precise Canadian address found. Add the city and street number.",
+        );
+        return;
+      }
+      if (
+        candidates.length > 1 &&
+        candidates[0].score - candidates[1].score < 5
+      ) {
+        setAddressError(
+          "Several addresses match. Add the municipality or postal code.",
+        );
+        return;
+      }
+      const candidate = candidates[0];
+      setAddress({
+        query: input,
+        label: candidate.address,
+        location: [candidate.location.x, candidate.location.y],
+      });
+    } catch {
+      addressLookups.delete(input);
+      setAddressError("Address search is unavailable. Please try again later.");
+    } finally {
+      setAddressBusy(false);
+    }
+  }
   const publicProjects = projects.filter((p) => !p.synthetic);
-  const visible = filterProjects(publicProjects, {
-    query,
+  const matching = filterProjects(publicProjects, {
+    query: address && address.query === query ? "" : query,
     municipality,
     category,
     status,
     participation,
     recent,
   });
+  const nearby =
+    address && address.query === query
+      ? matching
+          .map((project) => ({
+            project,
+            proximity: projectProximity(project, address.location),
+          }))
+          .filter(({ proximity }) => proximity && proximity.distance <= radius)
+          .sort((a, b) => a.proximity!.distance - b.proximity!.distance)
+      : null;
+  const visible = nearby ? nearby.map(({ project }) => project) : matching;
   const chosen = visible.find((p) => p.id === selected);
   const hasFilters = !!(
     query ||
@@ -60,15 +173,68 @@ export function Discovery({
     <Localized>
       {
         <>
-          <div className="discovery-search">
+          <form
+            className="discovery-search"
+            role="search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (addressPattern.test(query.trim()))
+                void findAddress(query.trim());
+              else {
+                setAddress(null);
+                setAddressError("");
+              }
+            }}
+          >
             <Search size={21} />
             <input
               aria-label="Search decisions"
-              placeholder="Search a project, neighbourhood, municipality, or topic…"
+              placeholder="Search a project, topic, or street address…"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setAddress(null);
+                setAddressError("");
+              }}
             />
-          </div>
+            <button
+              type="submit"
+              className="button secondary"
+              disabled={addressBusy}
+            >
+              Search
+            </button>
+          </form>
+          {addressBusy && <p role="status">Finding address…</p>}
+          {addressError && <p role="alert">{addressError}</p>}
+          {nearby && (
+            <div className="address-results" role="status">
+              <p>
+                Near {address!.label}: projects within {radius.toLocaleString()}{" "}
+                m of recorded project geography.
+              </p>
+              <label>
+                Search distance{" "}
+                <select
+                  value={radius}
+                  onChange={(event) => setRadius(Number(event.target.value))}
+                >
+                  <option value={500}>500 m</option>
+                  <option value={1000}>1 km</option>
+                  <option value={2000}>2 km</option>
+                </select>
+              </label>
+              <p>
+                Distance is a search rule, not an official impact area. Study
+                corridors may not be approved for construction. TTC service
+                routes and projects without published geography are excluded.
+              </p>
+              <p>
+                Address searches use Esri geocoding. Cityora does not store the
+                selected location in its database.
+              </p>
+            </div>
+          )}
           <div className="filters discovery-filters">
             <label className="sr-only" htmlFor="municipality">
               Municipality
@@ -148,6 +314,8 @@ export function Discovery({
                   setStatus("");
                   setParticipation("");
                   setRecent(false);
+                  setAddress(null);
+                  setAddressError("");
                 }}
               >
                 <X size={14} />
@@ -175,8 +343,24 @@ export function Discovery({
                     <ProjectCard
                       project={p}
                       selected={selected === p.id}
-                      onSelect={() => setSelected(p.id)}
+                      onSelect={() => {
+                        setSelected(p.id);
+                        setFocusRequest((value) => value + 1);
+                      }}
                     />
+                    {nearby && (
+                      <p className="address-match">
+                        {Math.round(
+                          nearby.find((item) => item.project.id === p.id)!
+                            .proximity!.distance,
+                        )}{" "}
+                        m to{" "}
+                        {nearby
+                          .find((item) => item.project.id === p.id)!
+                          .proximity!.kind.toLowerCase()}{" "}
+                        reference
+                      </p>
+                    )}
                     {validModule && (
                       <Link
                         className="module-open"
@@ -203,7 +387,9 @@ export function Discovery({
                 </div>
                 <ProjectMap
                   projects={visible}
+                  searchLocation={nearby ? address!.location : null}
                   selectedId={chosen?.id}
+                  focusRequest={focusRequest}
                   onSelect={setSelected}
                 />
                 {chosen && (

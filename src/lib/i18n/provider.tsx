@@ -9,6 +9,7 @@ import {
   type ReactNode,
   type ReactElement,
 } from "react";
+import { usePathname } from "next/navigation";
 import { Globe, ChevronDown } from "lucide-react";
 import french from "./fr.json";
 import chinese from "./zh-CN.json";
@@ -33,7 +34,12 @@ const LanguageContext = createContext<{
 }>({ locale: "en", setLocale: () => {} });
 export function useLanguage() {
   const context = useContext(LanguageContext);
-  return { ...context, t: (text: string) => translate(text, context.locale) };
+  const pathname = usePathname();
+  const locale =
+    pathname?.startsWith("/admin") || pathname?.startsWith("/studio")
+      ? "en"
+      : context.locale;
+  return { ...context, locale, t: (text: string) => translate(text, locale) };
 }
 let sessionLocale: Locale | undefined;
 function languageSnapshot(): Locale {
@@ -54,14 +60,17 @@ function subscribeLanguage(callback: () => void) {
   };
 }
 export function LanguageProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const staffRoute =
+    pathname?.startsWith("/admin") || pathname?.startsWith("/studio");
   const locale = useSyncExternalStore(
     subscribeLanguage,
     languageSnapshot,
     () => "en" as Locale,
   );
   useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
+    document.documentElement.lang = staffRoute ? "en" : locale;
+  }, [locale, staffRoute]);
   function setLocale(value: Locale) {
     sessionLocale = value;
     try {

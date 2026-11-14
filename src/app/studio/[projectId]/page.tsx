@@ -1,3 +1,4 @@
+import { requireStaff } from "@/features/admin/services/auth";
 import { notFound } from "next/navigation";
 import { getDraft } from "@/lib/db/projects";
 import { db } from "@/lib/db/client";
@@ -9,6 +10,7 @@ export default async function Editor({
 }: {
   params: Promise<{ projectId: string }>;
 }) {
+  await requireStaff();
   if (!studioEnabled()) notFound();
   const { projectId } = await params;
   const project = await getDraft(projectId);

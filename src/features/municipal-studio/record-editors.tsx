@@ -34,7 +34,9 @@ export function HistoryEditor({ project: p, update }: EditorProps) {
                       id: recordId(),
                       decisionId: p.decisions[0].id,
                       title: "New recorded event",
-                      date: new Date().toISOString().slice(0, 10),
+                      date: "",
+                      status: "Not verified",
+                      position: p.events.length,
                       type: "Staff report",
                       description: "Describe only what the source establishes.",
                       evidenceId: p.evidence[0].id,
@@ -49,6 +51,53 @@ export function HistoryEditor({ project: p, update }: EditorProps) {
           </div>
           {p.events.map((e) => (
             <section className="panel editor-record" key={e.id}>
+              <div className="row">
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() =>
+                    update({
+                      ...p,
+                      events: p.events.filter((x) => x.id !== e.id),
+                    })
+                  }
+                >
+                  Remove event
+                </button>
+                <label>
+                  Order
+                  <input
+                    type="number"
+                    min="0"
+                    value={e.position ?? 0}
+                    onChange={(event) =>
+                      update({
+                        ...p,
+                        events: p.events.map((x) =>
+                          x.id === e.id
+                            ? { ...x, position: Number(event.target.value) }
+                            : x,
+                        ),
+                      })
+                    }
+                  />
+                </label>
+                <Select
+                  label="Stage status"
+                  value={e.status ?? "Not verified"}
+                  options={["Completed", "Current", "Planned", "Not verified"]}
+                  onChange={(value) =>
+                    update({
+                      ...p,
+                      events: p.events.map((x) =>
+                        x.id === e.id
+                          ? { ...x, status: value as typeof e.status }
+                          : x,
+                      ),
+                    })
+                  }
+                />
+              </div>
               <div className="form-grid">
                 <Field
                   label="Event title"
@@ -98,6 +147,23 @@ export function HistoryEditor({ project: p, update }: EditorProps) {
                     })
                   }
                 />
+                {e.status === "Completed" && !e.date && (
+                  <Field
+                    label="Completion confirmed on (review date, not event date)"
+                    type="date"
+                    value={e.completionConfirmedOn ?? ""}
+                    onChange={(v) =>
+                      update({
+                        ...p,
+                        events: p.events.map((x) =>
+                          x.id === e.id
+                            ? { ...x, completionConfirmedOn: v || null }
+                            : x,
+                        ),
+                      })
+                    }
+                  />
+                )}
                 <Select
                   label="Related decision"
                   value={e.decisionId}

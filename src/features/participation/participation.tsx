@@ -118,7 +118,15 @@ export function Participation({ project }: { project: CivicProject }) {
                         <CalendarDays size={20} />
                         <Badge tone={status === "Open" ? "teal" : "amber"}>
                           {project.synthetic ? "Demo: " : ""}
-                          {status}
+                          {!project.synthetic &&
+                          o.confirmed &&
+                          o.verifiedAt &&
+                          o.evidenceId &&
+                          o.url &&
+                          ((status === "Verification Required" && !o.opensAt) ||
+                            status === "No Verified Opportunity")
+                            ? "See official instructions"
+                            : status}
                         </Badge>
                       </div>
                       <h3>{o.method}</h3>
@@ -130,7 +138,9 @@ export function Participation({ project }: { project: CivicProject }) {
                         <div>
                           <dt>Opens</dt>
                           <dd>
-                            {o.confirmed ? (
+                            {o.confirmed && !o.opensAt ? (
+                              "Opening date not stated"
+                            ) : o.confirmed ? (
                               <LocalizedDate
                                 value={o.opensAt}
                                 includeTime

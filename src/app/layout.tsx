@@ -19,7 +19,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
-      <body>
+      {/* Browser extensions can add body attributes before React hydrates. */}
+      <body suppressHydrationWarning>
         <LanguageProvider>
           <Shell>{children}</Shell>
         </LanguageProvider>

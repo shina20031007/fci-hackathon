@@ -3,7 +3,22 @@ import { fixtureProjects } from "../../data/fixtures/projects";
 import { invalidateChangedReviews } from "../../src/lib/evidence/invalidation";
 import { checkStudioRequest } from "../../src/lib/studio-security";
 import { vi } from "vitest";
+vi.mock("../../src/features/admin/services/auth", async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import("../../src/features/admin/services/auth")
+  >()),
+  currentStaff: vi.fn().mockResolvedValue("test@example.invalid"),
+}));
 describe("server-side review invalidation", () => {
+  it("clears completion confirmation when timeline content changes", () => {
+    const previous = structuredClone(fixtureProjects[0]);
+    previous.events[0].completionConfirmedOn = "2026-01-01";
+    const next = structuredClone(previous);
+    next.events[0].description = "A different account of completed work.";
+    expect(
+      invalidateChangedReviews(previous, next).events[0].completionConfirmedOn,
+    ).toBeNull();
+  });
   it("requires a separate review after a verified claim is edited", () => {
     const previous = fixtureProjects[0],
       next = structuredClone(previous);
@@ -39,7 +54,7 @@ describe("server-side review invalidation", () => {
   });
 });
 describe("local write guards", () => {
-  it("rejects disabled Studio, external origins and non-loopback hosts", () => {
+  it("rejects disabled Studio, external origins and non-loopback hosts", async () => {
     vi.stubEnv("STUDIO_ENABLED", "false");
     const req = new Request("http://127.0.0.1:3000/api/projects", {
       headers: {
@@ -47,11 +62,11 @@ describe("local write guards", () => {
         "content-type": "application/json",
       },
     });
-    expect(checkStudioRequest(req)).toContain("disabled");
+    expect(await checkStudioRequest(req)).toContain("disabled");
     vi.stubEnv("STUDIO_ENABLED", "true");
-    expect(checkStudioRequest(req)).toBeNull();
+    expect(await checkStudioRequest(req)).toBeNull();
     expect(
-      checkStudioRequest(
+      await checkStudioRequest(
         new Request("http://127.0.0.1:3000/api/projects", {
           headers: {
             origin: "https://external.example",
@@ -61,8 +76,10 @@ describe("local write guards", () => {
       ),
     ).toContain("same-origin");
     expect(
-      checkStudioRequest(new Request("https://public.example/api/projects")),
-    ).toContain("loopback");
+      await checkStudioRequest(
+        new Request("https://public.example/api/projects"),
+      ),
+    ).toContain("disabled");
     vi.unstubAllEnvs();
   });
 });

@@ -3,7 +3,7 @@ import { createProject, WorkflowError } from "@/lib/db/projects";
 import { projectSchema } from "@/lib/validation/project";
 import { checkStudioRequest } from "@/lib/studio-security";
 export async function POST(request: Request) {
-  const denied = checkStudioRequest(request);
+  const denied = await checkStudioRequest(request);
   if (denied) return NextResponse.json({ error: denied }, { status: 403 });
   try {
     const result = projectSchema.safeParse(await request.json());

@@ -1,0 +1,396 @@
+.page {
+  max-width: 1240px;
+  margin: auto;
+}
+.header {
+  padding: 2rem 0;
+  max-width: 880px;
+}
+.header h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.12;
+}
+.breadcrumb,
+.anchors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.corridors {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+.corridors a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem;
+  border: 1px solid #bdcdd1;
+  border-radius: 12px;
+  background: white;
+  color: #163849;
+  text-decoration: none;
+}
+.corridors a:hover,
+.corridors a[aria-current="page"] {
+  border-color: #176754;
+  background: #edf6f2;
+}
+.answers,
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.page section {
+  scroll-margin-top: 7rem;
+  margin-bottom: 1.5rem;
+}
+.page p {
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.page h2 {
+  font-size: 1.35rem;
+}
+.page a:focus-visible {
+  outline: 3px solid #16745f;
+  outline-offset: 4px;
+}
+.anchors {
+  padding: 1rem 0;
+  border-block: 1px solid #d7e1e4;
+}
+.page article {
+  margin: 1.5rem 0;
+}
+@media (max-width: 760px) {
+  .corridors,
+  .answers,
+  .details {
+    grid-template-columns: 1fr;
+  }
+  .header {
+    padding: 1rem 0;
+  }
+  .corridors {
+    gap: 0.65rem;
+  }
+  .corridors a {
+    padding: 1rem;
+  }
+}
+
+.page :global(.map-route-legend) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  padding: 1rem;
+  background: #f3f7f8;
+  border: 1px solid #d7e1e4;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.page :global(.map-route-legend p) {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.9rem;
+}
+.page :global(.map-canvas) {
+  min-height: 480px;
+}
+@media (max-width: 600px) {
+  .page :global(.map-canvas) {
+    min-height: 360px;
+  }
+  .page :global(.map-route-legend button) {
+    min-height: 44px;
+  }
+}
+
+.progress {
+  padding: 1.75rem;
+  border: 1px solid #d6e1e4;
+  border-radius: 18px;
+  background: #fff;
+  margin: 1.5rem 0 2rem;
+}
+.progressHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.overline {
+  font-size: 0.85rem;
+  color: #526674;
+  margin: 0 0 0.35rem;
+}
+.progressHeading h2 {
+  font-size: 1.75rem;
+  margin: 0;
+}
+.progressHeading h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+.routeBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.routeBadges a {
+  border: 1px solid #c7d6da;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #173b4c;
+  text-decoration: none;
+}
+.progressRange {
+  color: #526674;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+.progressLine {
+  display: grid;
+  list-style: none;
+  padding: 1.25rem 0 1rem;
+  margin: 0;
+  gap: 0;
+}
+.progressLine li {
+  position: relative;
+  min-width: 0;
+  text-align: center;
+  color: #63727c;
+}
+.progressLine li:after {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: 50%;
+  width: 100%;
+  height: 3px;
+  background: #cbd5da;
+  z-index: 0;
+}
+.progressLine li:last-child:after {
+  display: none;
+}
+.progressLine li[data-state="done"]:after {
+  background: #168554;
+}
+.progressLine li[data-state="draftDone"]:after {
+  background: repeating-linear-gradient(
+    to right,
+    #83b69e 0 7px,
+    transparent 7px 11px
+  );
+}
+.progressLine li[data-state="current"]:after,
+.progressLine li[data-state="draftCurrent"]:after {
+  background: linear-gradient(to right, #2878ce 0 45%, #cbd5da 45%);
+}
+.progressLine li > button {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  align-items: center;
+  width: 100%;
+  padding: 0 0.4rem;
+  background: transparent;
+  border: 0;
+  text-align: center;
+  color: inherit;
+  font-weight: 400;
+  white-space: normal;
+}
+.progressLine li > button > svg {
+  display: none;
+}
+.stageDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  border: 2px solid #a5b5bd;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 5px white;
+  color: #a5b5bd;
+}
+.progressLine li[data-state="done"] .stageDot {
+  background: #168554;
+  border-color: #168554;
+  color: white;
+}
+.progressLine li[data-state="draftDone"] .stageDot {
+  border-color: #168554;
+  color: #168554;
+}
+.progressLine li[data-state="current"] .stageDot,
+.progressLine li[data-state="draftCurrent"] .stageDot {
+  background: #2878ce;
+  border-color: #2878ce;
+  color: #fff;
+}
+.progressLine li[data-state="current"],
+.progressLine li[data-state="draftCurrent"] {
+  color: #185a9e;
+}
+.stageName {
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.stageDate {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.progressActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+.participationBox,
+.nextBox {
+  display: flex;
+  gap: 0.65rem;
+  padding: 1rem;
+  border: 1px solid #dfca8f;
+  background: #fff5d9;
+  border-radius: 10px;
+  color: #644711;
+}
+.nextBox {
+  border-color: #a8c9e8;
+  background: #eef6ff;
+  color: #174f7d;
+}
+.progressActions svg {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+.progressActions p {
+  margin: 0.35rem 0;
+  font-size: 0.95rem;
+}
+.progressFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin-top: 1rem;
+  color: #64727a;
+  font-size: 0.8rem;
+}
+.stageDetails {
+  margin-top: 1rem;
+  border-top: 1px solid #e1e8ea;
+  padding-top: 1rem;
+}
+.stageDetails h3 {
+  font-size: 1rem;
+}
+.moreDetails {
+  padding: 1rem 0;
+  margin: 1rem 0;
+}
+.moreDetails > summary,
+.stageDetails > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.moreDetails[open] > summary {
+  margin-bottom: 1rem;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.progressLine button:focus-visible {
+  outline: 3px solid #165c8c;
+  outline-offset: 5px;
+  border-radius: 6px;
+}
+@media (max-width: 700px) {
+  .progress {
+    padding: 1.2rem;
+  }
+  .progressHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .progressHeading h2 {
+    font-size: 1.4rem;
+  }
+  .progressActions {
+    grid-template-columns: 1fr;
+  }
+  .progressLine {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .progressLine li {
+    text-align: left;
+    min-height: 82px;
+    padding-bottom: 1rem;
+  }
+  .progressLine li:after {
+    left: 17px;
+    top: 18px;
+    width: 3px;
+    height: 100%;
+  }
+  .progressLine li[data-state="draftDone"]:after {
+    background: repeating-linear-gradient(
+      to bottom,
+      #83b69e 0 7px,
+      transparent 7px 11px
+    );
+  }
+  .progressLine li[data-state="current"]:after,
+  .progressLine li[data-state="draftCurrent"]:after {
+    background: linear-gradient(to bottom, #2878ce 0 45%, #cbd5da 45%);
+  }
+  .progressLine li > button {
+    display: grid;
+    grid-template-columns: 35px 1fr;
+    column-gap: 1rem;
+    text-align: left;
+    padding: 0;
+    justify-items: start;
+  }
+  .stageDot {
+    grid-row: 1/3;
+  }
+  .stageDate {
+    grid-column: 2;
+  }
+  .corridors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .corridors a {
+    padding: 0.8rem;
+    font-size: 0.85rem;
+  }
+  .corridors a span {
+    display: none;
+  }
+}

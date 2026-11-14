@@ -1,3 +1,4 @@
+import { mapScopeLayer, corridorColor } from "@/lib/geospatial/relevance";
 import type { GraphicProperties } from "@arcgis/core/Graphic.js";
 import type Point from "@arcgis/core/geometry/Point.js";
 
@@ -17,6 +18,8 @@ export type MapRuntime = Awaited<ReturnType<typeof createCivicMap>>;
 export async function createCivicMap(
   container: HTMLDivElement,
   handlers: {
+    city?: "Toronto" | "Waterloo";
+    preview?: boolean;
     onLocation: (point: [number, number]) => void;
     onProject: (id: string) => void;
     onError: () => void;
@@ -81,6 +84,11 @@ export async function createCivicMap(
     return new Polygon({ rings: g.coordinates, spatialReference });
   }
   let disposed = false;
+  function reportViewError(error: unknown) {
+    // A new viewpoint or basemap can cancel work that is no longer needed.
+    if (!disposed && (error as { name?: string } | null)?.name !== "AbortError")
+      handlers.onError();
+  }
   let basemapRequest = 0;
   let fallbackRoads = false;
   let t = handlers.translate;
@@ -134,7 +142,13 @@ export async function createCivicMap(
       })
     : undefined;
   search.sources = new Collection<LayerSearchSource | LocatorSearchSource>(
-    canadaSearch ? [canadaSearch, localSearch] : [localSearch],
+    handlers.city === "Toronto"
+      ? canadaSearch
+        ? [canadaSearch]
+        : []
+      : canadaSearch
+        ? [canadaSearch, localSearch]
+        : [localSearch],
   );
   search.activeSourceIndex = 0;
   search.addEventListener("arcgisSearchComplete", (event) => {
@@ -142,7 +156,12 @@ export async function createCivicMap(
     const failure = event.detail.errors?.find(
       (result) => result.source === canadaSearch,
     );
-    if (failure) {
+    if (failure && handlers.city === "Toronto") {
+      handlers.onServiceError(
+        "search",
+        "Address search is unavailable. Select a point or enter coordinates.",
+      );
+    } else if (failure) {
       search.activeSourceIndex = search.sources.indexOf(localSearch);
       handlers.onServiceError(
         "search",
@@ -159,7 +178,7 @@ export async function createCivicMap(
       handlers.onServiceError("search", "");
     }
   });
-  component.append(search);
+  if (search.sources.length) component.append(search);
   container.append(component);
   function selectLocation(point: Point) {
     const geographic = point.spatialReference.isWebMercator
@@ -183,7 +202,7 @@ export async function createCivicMap(
     if (point?.type === "point") selectLocation(point as Point);
   });
   component.addEventListener("arcgisViewLayerviewCreateError", (event) => {
-    if (disposed) return;
+    if (disposed || event.detail.error?.name === "AbortError") return;
     const basemap = component.map?.basemap;
     if (
       basemap?.baseLayers.includes(event.detail.layer) ||
@@ -197,7 +216,10 @@ export async function createCivicMap(
         "basemap",
         "Basemap unavailable. Showing OpenStreetMap.",
       );
-    } else handlers.onError();
+    } else if (component.map?.layers.includes(event.detail.layer)) {
+      handlers.onError();
+    }
+    // Late failures from a removed basemap must not mark the replacement as failed.
   });
   await component.viewOnReady();
   const view = component.view;
@@ -221,10 +243,18 @@ export async function createCivicMap(
       projectsLayer.removeAll();
       projects.forEach((project, index) =>
         project.scopes
-          .filter((scope) => !hidden.includes(scope.kind))
+          .filter((scope) => !hidden.includes(mapScopeLayer(scope)))
           .forEach((scope) => {
             const shape = geometry(scope.geometry),
-              color = colors[index % colors.length];
+              color = scope.id.includes("-ttc-")
+                ? corridorColor(project.id)
+                : project.id.startsWith("rapidto-")
+                  ? scope.kind === "Transportation feature"
+                    ? "#08734f"
+                    : scope.kind === "Planning area"
+                      ? "#165c8c"
+                      : "#6e6e6e"
+                  : colors[index % colors.length];
             const symbol: GraphicProperties["symbol"] =
               shape.type === "polygon"
                 ? {
@@ -242,7 +272,25 @@ export async function createCivicMap(
                     },
                   }
                 : shape.type === "polyline"
-                  ? { type: "simple-line", color, width: 4, style: "dash" }
+                  ? {
+                      type: "simple-line",
+                      color,
+                      width: scope.id.includes("-ttc-")
+                        ? 3
+                        : !project.id.startsWith("rapidto-")
+                          ? 4
+                          : scope.kind === "Study area"
+                            ? 8
+                            : scope.kind === "Planning area"
+                              ? 6
+                              : 3,
+                      style:
+                        !scope.id.includes("-ttc-") &&
+                        project.id.startsWith("rapidto-") &&
+                        scope.kind === "Transportation feature"
+                          ? "solid"
+                          : "dash",
+                    }
                   : {
                       type: "simple-marker",
                       color,
@@ -259,9 +307,14 @@ export async function createCivicMap(
                   content: () => {
                     const panel = document.createElement("div");
                     for (const text of [
-                      t(project.status),
-                      t(projectParticipation(project)),
-                      t(scope.kind),
+                      t(scope.label),
+                      ...(scope.id.includes("-ttc-")
+                        ? [t("TTC scheduled routes")]
+                        : [
+                            t(project.status),
+                            t(projectParticipation(project)),
+                            t(scope.kind),
+                          ]),
                       t(scope.description),
                     ]) {
                       const p = document.createElement("p");
@@ -271,9 +324,8 @@ export async function createCivicMap(
                     const source = project.sources.find(
                       (source) =>
                         source.id ===
-                        project.evidence.find(
-                          (e) => e.id === project.summaryEvidenceId,
-                        )?.sourceId,
+                        project.evidence.find((e) => e.id === scope.evidenceId)
+                          ?.sourceId,
                     );
                     if (source?.url) {
                       const a = document.createElement("a");
@@ -284,14 +336,63 @@ export async function createCivicMap(
                       panel.append(a);
                     }
                     const link = document.createElement("a");
-                    link.href = `/projects/${project.id}/decisions`;
-                    link.textContent = t("Decision DNA");
+                    link.href = project.id.startsWith("rapidto-")
+                      ? `/projects/toronto-2024-ex11-8/corridors/${project.id.slice(8)}${handlers.preview ? "?preview=1" : ""}`
+                      : `/projects/${project.id}/decisions`;
+                    link.textContent = t(
+                      project.id.startsWith("rapidto-")
+                        ? "View corridor"
+                        : "Decision DNA",
+                    );
+                    if (scope.id.includes("-ttc-")) {
+                      const number = scope.label.match(/^TTC (\d+)/)?.[1];
+                      if (number) {
+                        const a = document.createElement("a");
+                        a.href = `https://www.ttc.ca/routes-and-schedules/${number}`;
+                        a.textContent = t("TTC route and service updates");
+                        a.target = "_blank";
+                        a.rel = "noreferrer";
+                        panel.append(document.createElement("br"), a);
+                      }
+                    }
                     panel.append(document.createElement("br"), link);
                     return panel;
                   },
                 },
               }),
             );
+            if (
+              scope.id.includes("-ttc-") &&
+              scope.id.endsWith("-0") &&
+              shape.type === "polyline"
+            ) {
+              const coordinates =
+                scope.geometry.type === "LineString"
+                  ? scope.geometry.coordinates
+                  : [];
+              if (coordinates.length) {
+                const middle = coordinates[Math.floor(coordinates.length / 2)];
+                projectsLayer.add(
+                  new Graphic({
+                    geometry: geometry({ type: "Point", coordinates: middle }),
+                    symbol: {
+                      type: "text",
+                      text: scope.label.match(/^TTC \d+/)?.[0] ?? "TTC",
+                      color,
+                      haloColor: "white",
+                      haloSize: 2,
+                      font: { size: 11, weight: "bold" },
+                      yoffset: 10,
+                    },
+                    attributes: {
+                      projectId: project.id,
+                      scopeId: scope.id,
+                      annotation: true,
+                    },
+                  }),
+                );
+              }
+            }
           }),
       );
       if (popup && openScopeId) {
@@ -362,19 +463,32 @@ export async function createCivicMap(
         );
       }
     },
+    fit(projects: CivicProject[]) {
+      const geometries = projects.flatMap((p) => {
+        const references = p.scopes.filter((s) => !s.id.includes("-ttc-"));
+        return (references.length ? references : p.scopes).map((s) =>
+          geometry(s.geometry),
+        );
+      });
+      if (geometries.length)
+        void component
+          .goTo(geometries, { animate: false })
+          .catch(reportViewError);
+    },
     focus(project?: CivicProject) {
-      const geometries = project?.scopes.map((scope) =>
-        geometry(scope.geometry),
-      );
+      const references = project?.scopes.filter((s) => !s.id.includes("-ttc-"));
+      const geometries = (
+        references?.length ? references : project?.scopes
+      )?.map((scope) => geometry(scope.geometry));
       if (geometries?.length)
         void component
           .goTo(geometries, { animate: false })
-          .catch(handlers.onError);
+          .catch(reportViewError);
     },
     goTo(center: [number, number], zoom = 12) {
       void component
         .goTo({ center, zoom }, { animate: false })
-        .catch(handlers.onError);
+        .catch(reportViewError);
     },
     reset() {
       void component
@@ -388,7 +502,7 @@ export async function createCivicMap(
           }),
           { animate: false },
         )
-        .catch(handlers.onError);
+        .catch(reportViewError);
     },
     destroy() {
       disposed = true;

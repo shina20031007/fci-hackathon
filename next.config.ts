@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
   poweredByHeader: false,
+  serverExternalPackages: ["pdf-parse", "exceljs"],
   devIndicators: false,
   agentRules: false,
   distDir:

@@ -4,6 +4,16 @@ import type { ArcgisMap } from "@arcgis/map-components/components/arcgis-map/cus
 import type { ArcgisSearch } from "@arcgis/map-components/components/arcgis-search/customElement";
 // Traces contain service request tokens when a local browser key is configured.
 test.use({ trace: "off" });
+test.beforeEach(async ({ page, baseURL }) => {
+  const response = await page.request.post("/api/admin/login", {
+    headers: { origin: baseURL! },
+    data: {
+      email: "staff@example.invalid",
+      password: "test-only-password-not-production",
+    },
+  });
+  expect(response.ok()).toBe(true);
+});
 test("languages persist, preserve drafts and leave official excerpts unchanged", async ({
   page,
 }) => {
@@ -56,7 +66,6 @@ test("all six modules present translated controls and keep filter values canonic
     "/projects/wilmot-official-plan/public-voice",
     "/projects/wilmot-official-plan/impact",
     "/projects/wilmot-official-plan/participation",
-    "/studio",
   ]) {
     await page.goto(path);
     await expect(page.locator(".language-selector select")).toHaveValue("fr");
@@ -265,8 +274,8 @@ test("integrated navigation opens live routes, sources and browser history", asy
   await page.getByRole("link", { name: "Staff Portal", exact: true }).click();
   await expect(page).toHaveURL(/\/admin$/);
   await expect(
-    page.getByRole("link", { name: "Open Municipal Studio", exact: true }),
-  ).toHaveAttribute("href", "/studio");
+    page.getByRole("link", { name: "Import Documents", exact: true }),
+  ).toHaveAttribute("href", "/admin?tab=imports");
 });
 
 test("integrated 390px menus preserve project and locale", async ({ page }) => {
@@ -365,6 +374,9 @@ test("configured ArcGIS basemaps and Canada search preserve project geography", 
     );
   const original = await count();
   expect(original).toBeGreaterThan(0);
+  const retiredLayer = await map.evaluateHandle((node) =>
+    (node as ArcgisMap).map!.basemap!.baseLayers.getItemAt(0),
+  );
   for (const [value, id] of [
     ["imagery", "arcgis/imagery"],
     ["gray", "arcgis/light-gray"],
@@ -385,6 +397,17 @@ test("configured ArcGIS basemaps and Canada search preserve project geography", 
       .toBe("loaded");
     expect(await count()).toBe(original);
   }
+  await map.evaluate((node, layer) => {
+    node.dispatchEvent(
+      new CustomEvent("arcgisViewLayerviewCreateError", {
+        detail: {
+          layer,
+          error: new Error("Late failure from a replaced basemap"),
+        },
+      }),
+    );
+  }, retiredLayer);
+  await retiredLayer.dispose();
   await expect(page.locator(".map-notice")).toHaveCount(0);
   const search = page.locator("arcgis-search input").first();
   await search.fill("111 Wellington Street, Ottawa, ON");

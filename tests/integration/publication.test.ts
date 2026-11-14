@@ -166,3 +166,166 @@ describe.sequential("persistent draft and publication workflow", () => {
     expect(await getDraft("cedar-quarter", client)).toEqual(before);
   });
 });
+
+describe.sequential(
+  "authenticated admin review and lifecycle persistence",
+  () => {
+    it("requires field review, invalidates edits, retains publication history and supports delete/restore/archive", async () => {
+      const { changeLifecycle } =
+        await import("../../src/features/admin/services/lifecycle");
+      const { reviewFields, fieldHash } =
+        await import("../../src/features/admin/services/review");
+      const original = structuredClone(fixtureProjects[0]);
+      const ids = new Set([
+        original.id,
+        ...[
+          original.sources,
+          original.evidence,
+          original.decisions,
+          original.events,
+          original.versions,
+          original.feedback,
+          original.opportunities,
+          original.scopes,
+        ]
+          .flat()
+          .map((r) => r.id),
+      ]);
+      const input = JSON.parse(JSON.stringify(original), (_key, value) =>
+        typeof value === "string" && ids.has(value)
+          ? "admin-test-" + value
+          : value,
+      );
+      let draft = await createProject(input, client);
+      draft = await transitionProject(
+        draft.id,
+        draft.revision,
+        "review",
+        "Test review",
+        client,
+      );
+      await expect(
+        transitionProject(
+          draft.id,
+          draft.revision,
+          "verify",
+          "Cannot bypass",
+          client,
+        ),
+      ).rejects.toThrow("every critical field");
+      async function verifyFields() {
+        for (const field of reviewFields)
+          await client.fieldReview.upsert({
+            where: { projectId_field: { projectId: draft.id, field } },
+            create: {
+              projectId: draft.id,
+              field,
+              valueHash: fieldHash(draft, field),
+              reviewer: "test@example.invalid",
+            },
+            update: { valueHash: fieldHash(draft, field) },
+          });
+      }
+      await verifyFields();
+      draft = await transitionProject(
+        draft.id,
+        draft.revision,
+        "verify",
+        "Verified fixture",
+        client,
+      );
+      draft = await transitionProject(
+        draft.id,
+        draft.revision,
+        "publish",
+        "Publish fixture",
+        client,
+      );
+      const old = (await publishedProject(draft.id, client))!;
+      draft = await saveProject(
+        { ...draft, summary: draft.summary + " Edited test summary." },
+        client,
+      );
+      draft = await transitionProject(
+        draft.id,
+        draft.revision,
+        "review",
+        "Re-review",
+        client,
+      );
+      await expect(
+        transitionProject(
+          draft.id,
+          draft.revision,
+          "verify",
+          "Stale field checks",
+          client,
+        ),
+      ).rejects.toThrow("every critical field");
+      expect((await publishedProject(draft.id, client))!.summary).toBe(
+        old.summary,
+      );
+      await verifyFields();
+      draft = await transitionProject(
+        draft.id,
+        draft.revision,
+        "verify",
+        "Reverified fixture",
+        client,
+      );
+      draft = await transitionProject(
+        draft.id,
+        draft.revision,
+        "publish",
+        "Republish fixture",
+        client,
+      );
+      const history = await client.reviewRecord.findFirst({
+        where: { projectId: draft.id, action: "Previous publication retained" },
+      });
+      expect(JSON.parse(history!.snapshot!).summary).toBe(old.summary);
+      await changeLifecycle(
+        draft.id,
+        draft.revision,
+        "delete",
+        "test@example.invalid",
+        client,
+      );
+      expect(await publishedProject(draft.id, client)).toBeNull();
+      expect(
+        await client.publication.count({ where: { projectId: draft.id } }),
+      ).toBe(1);
+      await expect(
+        changeLifecycle(
+          draft.id,
+          draft.revision,
+          "restore",
+          "test@example.invalid",
+          client,
+        ),
+      ).rejects.toThrow("changed");
+      await changeLifecycle(
+        draft.id,
+        draft.revision + 1,
+        "restore",
+        "test@example.invalid",
+        client,
+      );
+      expect(await publishedProject(draft.id, client)).not.toBeNull();
+      await changeLifecycle(
+        draft.id,
+        draft.revision + 2,
+        "archive",
+        "test@example.invalid",
+        client,
+      );
+      expect(await publishedProject(draft.id, client)).toBeNull();
+      const archived = await client.project.findUniqueOrThrow({
+        where: { id: draft.id },
+      });
+      expect(archived.deletedAt).toBeNull();
+      expect(archived.archivedAt).not.toBeNull();
+      expect(await publishedProject("cedar-quarter", client)).not.toBeNull();
+    });
+  },
+);

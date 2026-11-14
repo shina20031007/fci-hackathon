@@ -1,4 +1,5 @@
 import type { CivicProject, Opportunity } from "@/lib/validation/project";
+import { searchProjects } from "@/lib/search/projects";
 export function participationStatus(
   window: Opportunity,
   synthetic: boolean,
@@ -76,6 +77,27 @@ export function publicationIssues(p: CivicProject): string[] {
       );
   if (!p.synthetic && p.feedback.some((f) => !f.evidenceId))
     issues.push("Add source evidence for every recorded public concern.");
+  const today = new Date().toISOString().slice(0, 10);
+  for (const event of p.events) {
+    if (event.status !== "Completed") continue;
+    const supporting = evidence.get(event.evidenceId);
+    // A review date confirms that completion has occurred, not when it occurred.
+    // Keep unknown event dates blank and require reviewed official evidence.
+    const confirmedWithoutExactDate =
+      !p.synthetic &&
+      usable(event.evidenceId) &&
+      supporting?.state === "Officially Confirmed" &&
+      !!event.completionConfirmedOn &&
+      event.completionConfirmedOn <= today &&
+      event.completionConfirmedOn <= supporting.verifiedAt!.slice(0, 10);
+    if (
+      (event.date && event.date > today) ||
+      (!event.date && !confirmedWithoutExactDate)
+    )
+      issues.push(
+        "Completed timeline events require a confirmed past date or an explicit completion confirmation backed by reviewed official evidence.",
+      );
+  }
   for (const o of p.opportunities)
     if (
       o.confirmed &&
@@ -88,7 +110,10 @@ export function publicationIssues(p: CivicProject): string[] {
   return [...new Set(issues)];
 }
 export function orderedEvents(project: CivicProject) {
-  return [...project.events].sort((a, b) => a.date.localeCompare(b.date));
+  return [...project.events].sort(
+    (a, b) =>
+      (a.position ?? 0) - (b.position ?? 0) || a.date.localeCompare(b.date),
+  );
 }
 export function filterProjects(
   projects: CivicProject[],
@@ -102,13 +127,8 @@ export function filterProjects(
   },
   now = new Date(),
 ) {
-  return projects.filter(
+  return searchProjects(projects, filters.query ?? "").filter(
     (p) =>
-      (!filters.query ||
-        [p.title, p.municipality, p.neighbourhood, p.category, p.summary]
-          .join(" ")
-          .toLowerCase()
-          .includes(filters.query.trim().toLowerCase())) &&
       (!filters.municipality || p.municipality === filters.municipality) &&
       (!filters.category || p.category === filters.category) &&
       (!filters.status || p.status === filters.status) &&

@@ -1,3 +1,4 @@
+import { currentStaff } from "@/features/admin/services/auth";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
@@ -19,7 +20,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
-  const denied = checkStudioRequest(request);
+  const denied = await checkStudioRequest(request);
   if (denied) return NextResponse.json({ error: denied }, { status: 403 });
   const { projectId } = await params;
   try {
@@ -41,12 +42,12 @@ export async function PUT(
       );
     const project =
       data.action === "save"
-        ? await saveProject(data.project)
+        ? await saveProject(data.project, undefined, (await currentStaff())!)
         : await transitionProject(
             projectId,
             data.revision,
             data.action,
-            data.note,
+            `${data.note} Staff: ${await currentStaff()}`,
           );
     return NextResponse.json({ project });
   } catch (e) {

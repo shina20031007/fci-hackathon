@@ -12,6 +12,11 @@ model Municipality {
 }
 model Project {
   id String @id
+  agendaItem String?
+  reviewRequired Boolean @default(false)
+  checks FieldReview[]
+  archivedAt DateTime?
+  deletedAt DateTime?
   municipalityId String
   municipality Municipality @relation(fields: [municipalityId], references: [id])
   title String
@@ -92,6 +97,8 @@ model DecisionItem {
   @@index([projectId, status])
 }
 model DecisionEvent {
+  status String @default("Not verified")
+  position Int @default(0)
   id String @id
   projectId String
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -99,6 +106,7 @@ model DecisionEvent {
   decision DecisionItem @relation(fields: [decisionId], references: [id], onDelete: Cascade)
   title String
   date String
+  completionConfirmedOn String?
   type String
   description String
   evidenceId String
@@ -169,6 +177,7 @@ model GeographicScope {
   @@index([projectId])
 }
 model ReviewRecord {
+  snapshot String?
   id String @id @default(cuid())
   projectId String
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -184,4 +193,67 @@ model Publication {
   snapshot String
   revision Int
   publishedAt DateTime @default(now())
+}
+
+model DocumentImport {
+ digest String? @unique
+ fileData Bytes?
+ mediaType String @default("application/pdf")
+ sourceUrl String?
+ status String @default("Extracted")
+ error String?
+ startedAt DateTime?
+ attempts Int @default(0)
+ uploadedBy String @default("Legacy import")
+ costUsd Float?
+ originalProject String?
+
+ id String @id @default(cuid())
+ filename String
+ pages String
+ rawResponse String?
+ extraction String?
+ model String?
+ requestId String?
+ usage String?
+ projectId String?
+ createdAt DateTime @default(now())
+}
+
+model StaffSession {
+ tokenHash String @id
+ email String
+ credentialHash String
+ expiresAt DateTime
+}
+model LoginAttempt {
+ id String @id
+ attempts Int @default(0)
+ windowStart DateTime @default(now())
+}
+model FieldReview {
+ id String @id @default(cuid())
+ projectId String
+ project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+ field String
+ valueHash String
+ reviewer String
+ reviewedAt DateTime @default(now())
+ @@unique([projectId, field])
+}
+model OfficialRecord {
+ id String @id
+ dataset String
+ agendaItem String
+ sourceUrl String
+ record String
+ fetchedAt DateTime @default(now())
+ projectId String?
+ confirmedBy String?
+ @@index([agendaItem])
+}
+model AnalysisBudget {
+ day String @id
+ reservedTokens Int @default(0)
+ calls Int @default(0)
 }

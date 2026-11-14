@@ -1,3 +1,4 @@
+import { reviewFields, fieldHash } from "@/features/admin/services/review";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { db } from "./client";
 import { projectSchema, type CivicProject } from "@/lib/validation/project";
@@ -43,6 +44,7 @@ export async function publishedProjects(
   client: PrismaClient = db,
 ): Promise<CivicProject[]> {
   const rows = await client.publication.findMany({
+    where: { project: { deletedAt: null, archivedAt: null } },
     orderBy: { publishedAt: "desc" },
   });
   return rows.map((r) => projectSchema.parse(JSON.parse(r.snapshot)));
@@ -51,7 +53,9 @@ export async function publishedProject(
   id: string,
   client: PrismaClient = db,
 ): Promise<CivicProject | null> {
-  const row = await client.publication.findUnique({ where: { projectId: id } });
+  const row = await client.publication.findFirst({
+    where: { projectId: id, project: { deletedAt: null, archivedAt: null } },
+  });
   return row ? projectSchema.parse(JSON.parse(row.snapshot)) : null;
 }
 export async function studioProjects() {
@@ -116,7 +120,14 @@ async function writeRecords(tx: Prisma.TransactionClient, p: CivicProject) {
       },
     });
   for (const e of events)
-    await tx.decisionEvent.create({ data: { ...e, projectId: p.id } });
+    await tx.decisionEvent.create({
+      data: {
+        ...e,
+        status: e.status ?? "Not verified",
+        position: e.position ?? 0,
+        projectId: p.id,
+      },
+    });
   for (const v of versions)
     await tx.documentVersion.create({ data: { ...v, projectId: p.id } });
   for (const f of feedback)
@@ -142,12 +153,16 @@ export async function createProject(
     throw new WorkflowError("A project with this ID already exists.", 409);
   await client.$transaction(async (tx) => {
     await writeRecords(tx, p);
+    await tx.project.update({
+      where: { id: p.id },
+      data: { reviewRequired: true },
+    });
     await tx.reviewRecord.create({
       data: {
         projectId: p.id,
         revision: 1,
         action: "Created",
-        note: "Local prototype draft created.",
+        note: "Draft created; publication requires separate review.",
       },
     });
   });
@@ -156,6 +171,7 @@ export async function createProject(
 export async function saveProject(
   input: CivicProject,
   client: PrismaClient = db,
+  staff = "System",
 ) {
   const parsed = projectSchema.parse(input);
   const previous = await getDraft(parsed.id, client);
@@ -165,6 +181,8 @@ export async function saveProject(
     async (tx) => {
       const current = await tx.project.findUnique({ where: { id: p.id } });
       if (!current) throw new WorkflowError("Project not found.", 404);
+      if (current.deletedAt || current.archivedAt)
+        throw new WorkflowError("Restore this project before editing.", 409);
       if (current.revision !== p.revision)
         throw new WorkflowError(
           "This draft changed in another session. Reload before saving.",
@@ -180,12 +198,18 @@ export async function saveProject(
         reviewStatus: "Draft",
         verifiedAt: null,
       });
+      if (!p.synthetic)
+        await tx.project.update({
+          where: { id: p.id },
+          data: { reviewRequired: true },
+        });
       await tx.reviewRecord.create({
         data: {
           projectId: p.id,
           revision: p.revision + 1,
           action: "Saved draft",
-          note: "Project-level approval reset; published snapshot unchanged.",
+          snapshot: JSON.stringify(previous),
+          note: `Saved by ${staff}. Project-level approval reset; published snapshot unchanged.`,
         },
       });
     },
@@ -222,6 +246,35 @@ export async function transitionProject(
       `This action requires the ${expected[action]} stage.`,
     );
   if (action !== "review") {
+    if (
+      await client.documentImport.count({
+        where: {
+          projectId: id,
+          status: { in: ["Corrections pending", "Analyzed", "Analyzing"] },
+        },
+      })
+    )
+      throw new WorkflowError(
+        "Apply pending document corrections and review the updated draft before approval.",
+      );
+    const record = await client.project.findUniqueOrThrow({
+      where: { id },
+      include: { checks: true },
+    });
+    if (
+      record.reviewRequired &&
+      reviewFields.some(
+        (field) =>
+          !record.checks.some(
+            (check) =>
+              check.field === field &&
+              check.valueHash === fieldHash(draft, field),
+          ),
+      )
+    )
+      throw new WorkflowError(
+        "Complete Review & Verify for every critical field before approval or publication.",
+      );
     const issues = publicationIssues(draft);
     if (issues.length) throw new WorkflowError(issues.join(" "));
   }
@@ -239,7 +292,7 @@ export async function transitionProject(
   };
   await client.$transaction(async (tx) => {
     const result = await tx.project.updateMany({
-      where: { id, revision },
+      where: { id, revision, deletedAt: null, archivedAt: null },
       data: {
         reviewStatus: next[action],
         verifiedAt: snapshot.verifiedAt,
@@ -251,7 +304,20 @@ export async function transitionProject(
         "This draft changed in another session. Reload before continuing.",
         409,
       );
-    if (action === "publish")
+    if (action === "publish") {
+      const previousPublication = await tx.publication.findUnique({
+        where: { projectId: id },
+      });
+      if (previousPublication)
+        await tx.reviewRecord.create({
+          data: {
+            projectId: id,
+            revision: previousPublication.revision,
+            action: "Previous publication retained",
+            note: "Publication history",
+            snapshot: previousPublication.snapshot,
+          },
+        });
       await tx.publication.upsert({
         where: { projectId: id },
         create: {
@@ -265,11 +331,13 @@ export async function transitionProject(
           publishedAt: new Date(),
         },
       });
+    }
     await tx.reviewRecord.create({
       data: {
         projectId: id,
         revision: snapshot.revision,
         action: next[action],
+        snapshot: JSON.stringify(snapshot),
         note,
       },
     });
